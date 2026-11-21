@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atemtraining</title>
+<meta name="theme-color" content="#06090d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Atemtraining">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE adults: quiet luxury of a dive watch; kids: playful underwater picture book; night: hushed
+   IDEA adults train on the dial of a ceramic-bezel dive watch; kids dive with a little whale
+   PICTURE adults: watch dial with bezel, lume indices and a progress pip; kids: sea scene where the whale sinks while they hold their breath
+   COLOUR adults black-blue dial #070b10, ceramic blue bezel, lume #dff5e8, red #e0473b; kids sea blue, coral, sun yellow, sand; night indigo + moon
+   TYPE adults Jost; kids Fredoka
+   LAYOUT laptop: picture and controls left (sticky), panels right; phone: title, picture, controls, panels */
+:root{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{--bg:#06090d;--top:#14212e;--deep:#080d12;--panel:linear-gradient(180deg,#111b25,#0b131b);--pbg:#0e1720;--line:#233343;--ink:#eef2f5;--mute:#98a7b5;--aqua:#dff5e8;--coral:#e0473b;--onpri:#0a1218;--onhot:#fff;--ff:Jost,system-ui,sans-serif;background:var(--bg) radial-gradient(120% 60% at 50% 0,var(--top) 0,var(--bg) 70%) no-repeat;min-height:100vh;color:var(--ink);font:16px/1.5 var(--ff);overflow-x:clip}
+body.kid{--bg:#0f6fbf;--top:#53d3f6;--deep:#eaf7ff;--panel:#fff;--pbg:#fff;--line:#c4e7fa;--ink:#0d3157;--mute:#41698c;--aqua:#ff6b6b;--coral:#ffbe0b;--onpri:#fff;--onhot:#3b2a00;--ff:Fredoka,system-ui,sans-serif;background:linear-gradient(180deg,var(--top) 0,#2aa6e6 360px,var(--bg) 100%);color:#fff}
+body.night{--bg:#151937;--top:#262d62;--deep:#0d1029;--panel:rgba(35,41,88,.72);--pbg:#232958;--line:#353d78;--ink:#f3f0fd;--mute:#c3bde6;--aqua:#b9a7f5;--coral:#f3dd9b;--onpri:#141634;background:var(--bg) radial-gradient(120% 60% at 50% 0,var(--top) 0,var(--bg) 70%) no-repeat;color:var(--ink)}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(20px,3vw,40px) max(16px,4vw) 48px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 24px;margin-bottom:16px}
+h1{font:500 clamp(34px,5vw,50px)/1.05 var(--ff);margin:0;letter-spacing:-.02em}
+body.adult h1{font-weight:400}
+h2{font:500 24px/1.2 var(--ff);margin:0 0 12px}
+h3{font:500 17px/1.2 var(--ff);margin:18px 0 8px;color:var(--mute)}
+.who{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.who form{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{font:500 17px var(--ff);min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--aqua);background:transparent;color:inherit;cursor:pointer}
+body.kid .pill{border-color:#fff;background:rgba(255,255,255,.18)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 20px;border-bottom:1px solid var(--line)}
+.tabs button{font:500 18px var(--ff);min-height:48px;padding:0 16px;background:none;border:0;border-bottom:3px solid transparent;color:var(--mute);cursor:pointer;margin-bottom:-1px}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--aqua)}
+body.kid .tabs{border:0;gap:8px}
+body.kid .tabs button{background:rgba(255,255,255,.2);color:#fff;border-radius:999px;border:0;padding:0 20px;margin:0}
+body.kid .tabs button[aria-selected=true]{background:#fff;color:var(--ink)}
+.tabs button:disabled{opacity:.5;cursor:default}
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(10.5em,1fr));gap:12px}
+.card{display:grid;gap:2px;text-align:left;font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-height:80px;cursor:pointer}
+.card b{font:500 20px/1.2 var(--ff);overflow-wrap:anywhere}
+.card span{color:var(--mute);font-size:14px}
+.card i{font-style:normal;font-size:12px;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:0 6px;justify-self:start}
+.card.on,.card:hover{border-color:var(--aqua)}
+.app{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:28px;align-items:start}
+.left{position:sticky;top:16px;display:grid;gap:18px;justify-items:center}
+.right{display:grid;gap:18px}
+.panel{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+body.kid:not(.night) .panel{border:0;border-radius:24px;box-shadow:0 6px 0 rgba(13,49,87,.15)}
+.today{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;margin-bottom:20px}
+.today b{display:block;font:500 22px/1.2 var(--ff)}
+.today span{color:var(--mute);font-size:15px}
+.today .btn{flex:0 0 auto}
+.dial{position:relative;width:min(100%,380px);aspect-ratio:1;--c:#5c6b78}
+.dial.breathe{--c:#9fe3cf}
+.dial.hold{--c:#e0473b}
+.dial svg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 18px 30px rgba(0,0,0,.55))}
+.read{position:absolute;inset:30%;display:grid;place-content:center;text-align:center;gap:0}
+#phase{font:500 19px/1.2 var(--ff);color:var(--c)}
+#clock{font:300 clamp(48px,14vw,78px)/1 var(--ff);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+#rnd{font-size:14px;color:#c9d3db}
+#nxt{color:var(--mute);font-size:13px;min-height:18px}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;width:100%;max-width:440px}
+.btn{font:500 17px var(--ff);min-height:48px;padding:0 20px;border-radius:12px;border:1px solid var(--line);background:var(--pbg);color:var(--ink);cursor:pointer;flex:1 1 auto}
+.btn:hover{border-color:var(--aqua)}
+.btn.pri{background:var(--aqua);border-color:var(--aqua);color:var(--onpri)}
+.btn.hot{background:var(--coral);border-color:var(--coral);color:var(--onhot)}
+.btn.big{flex:1 1 100%;min-height:64px;font-size:21px}
+body.kid .btn{border-radius:18px;font-weight:600;border-width:0;box-shadow:0 4px 0 rgba(13,49,87,.18)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn:active{transform:translateY(1px)}
+.btn[aria-pressed=true]{border-color:var(--aqua);box-shadow:inset 0 0 0 1px var(--aqua)}
+button:focus-visible,input:focus-visible,summary:focus-visible,textarea:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg .btn{flex:1 1 0}
+.result{width:100%;text-align:center;margin:0;font-size:17px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}
+.chip{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:999px;color:var(--mute);font:15px var(--ff);background:none;cursor:pointer}
+.chip input{accent-color:var(--aqua);width:18px;height:18px;margin:0}
+.warn{font-size:14px;color:var(--mute);text-align:center;max-width:36em;margin:0 auto}
+body.kid:not(.night) .chip,body.kid:not(.night) .warn{color:#eaf8ff;border-color:rgba(255,255,255,.5)}
+fieldset{border:0;margin:0;padding:0}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.row label{font-size:15px;color:var(--mute);width:100%}
+input[type=text],input[type=number],textarea{font:500 20px var(--ff);background:var(--deep);color:var(--ink);border:1px solid var(--line);border-radius:10px;min-height:48px;padding:0 12px;width:6.5em;text-align:center}
+textarea{width:100%;min-height:90px;font-size:13px;text-align:left;padding:10px;font-family:ui-monospace,monospace;overflow-wrap:anywhere}
+#renIn{width:10em;text-align:left;font-size:17px}
+.row .btn{flex:0 0 auto;padding:0 16px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5em,1fr));gap:10px;margin-top:14px}
+.fact{background:var(--deep);border-radius:12px;padding:10px 12px}
+.fact b{display:block;font:400 clamp(22px,2.4vw,28px)/1.15 var(--ff);font-variant-numeric:tabular-nums;white-space:nowrap}
+.fact span{color:var(--mute);font-size:14px}
+.note{color:var(--mute);font-size:14px;margin:10px 0 0}
+details{margin-top:14px}
+summary{cursor:pointer;color:var(--aqua);padding:4px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(10em,1fr));gap:12px;margin-top:12px}
+.grid2 label{display:grid;gap:4px;font-size:14px;color:var(--mute)}
+.grid2 input{width:100%}
+.link{background:none;border:0;color:var(--aqua);font:inherit;font-size:15px;cursor:pointer;padding:6px 0;text-decoration:underline}
+body.kid .link{color:#fff}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-weight:400;color:var(--mute);font-size:14px;text-align:right;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+tr.cur td{background:rgba(159,227,207,.1)}
+tr.cur.h td{background:rgba(224,71,59,.16)}
+.ok{color:#9fe3cf;font-weight:500}
+.fail{color:var(--coral);font-weight:500}
+.hint{background:rgba(159,227,207,.08);border:1px solid rgba(159,227,207,.35);border-radius:12px;padding:12px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.empty{color:var(--mute);margin:0}
+.pos{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px}
+.pbBig{font:300 clamp(56px,12vw,88px)/1 var(--ff);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.posTxt{font-size:18px;max-width:22em}
+.ladder{position:relative;height:84px;margin:10px 4px 0}
+.lt,.lf{position:absolute;left:0;top:36px;height:10px;border-radius:5px}
+.lt{right:0;background:var(--deep);box-shadow:inset 0 1px 2px rgba(0,0,0,.6)}
+.lf{background:linear-gradient(90deg,#5d6b78,#dff5e8);transition:width .6s ease-out}
+.lm{position:absolute;top:28px;height:26px;border-left:2px dashed var(--mute)}
+.lm.done{border-left-color:var(--coral);border-left-style:solid}
+.lm span{position:absolute;left:0;transform:translateX(-50%);font-size:13px;line-height:1.2;white-space:nowrap;color:var(--mute);text-align:center}
+.lm.up span{bottom:30px}
+.lm.dn span{top:30px}
+.lm.done span{color:var(--coral)}
+.you{position:absolute;top:29px;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#c9d0d8 50%,#7d8893);border:3px solid #dff5e8;box-shadow:0 0 12px rgba(223,245,232,.6);transition:left .6s ease-out}
+.fig{position:relative;height:300px}
+.fig svg{position:absolute;inset:0;width:100%;height:100%}
+.fig text{font:13px var(--ff);fill:var(--mute);paint-order:stroke;stroke:#0e1720;stroke-width:4px}
+.achs{display:grid;grid-template-columns:repeat(auto-fill,minmax(14em,1fr));gap:10px;margin-bottom:6px}
+.ach{display:grid;grid-template-columns:50px minmax(0,1fr);gap:2px 12px;align-items:center;padding:12px;border-radius:14px;background:var(--deep);border:1px solid var(--line)}
+.ach .md{grid-row:span 3;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font:500 14px var(--ff);background:radial-gradient(circle at 35% 30%,#2a3644,#151e27 70%);color:#6d7c8a;border:1px solid #2b3a49}
+.ach b{font-size:17px;font-weight:500;line-height:1.2}
+.ach span{font-size:14px;color:var(--mute);line-height:1.35}
+.ach small{font-size:13px;color:var(--mute)}
+.ach.got .md{background:radial-gradient(circle at 35% 28%,#fff 0,#d5dbe1 40%,#7f8a95 100%);color:#121a22;border-color:#e9edf1;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.ach.got small{color:#9fe3cf}
+.ach.big{border-color:#2b4d7e}
+.ach.big.got .md{background:radial-gradient(circle at 35% 28%,#4f8be0 0,#1b4c94 45%,#0b2148 100%);color:#fff;border:2px solid #e0473b}
+.ach.lock{opacity:.6}
+.ach.new .md{animation:pop .9s ease-out}
+@keyframes pop{0%{transform:scale(.4) rotate(-40deg)}60%{transform:scale(1.15) rotate(8deg)}100%{transform:none}}
+.tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:6px;padding:0 6px;margin-left:6px;color:var(--mute);vertical-align:2px;font-weight:400}
+#toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,calc(100% + 40px));visibility:hidden;background:#eef2f5;color:#0a1218;padding:12px 18px;border-radius:14px;font:500 16px var(--ff);max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.45);transition:transform .35s;z-index:20;border-left:6px solid #e0473b}
+#toast.on{transform:translate(-50%,0);visibility:visible}
+#blind{position:fixed;inset:0;z-index:15;background:#000;color:#4a5866;display:grid;place-items:center;text-align:center;touch-action:none;user-select:none;-webkit-user-select:none}
+#blind .bb{display:grid;gap:8px;padding:24px}
+#bPhase{font:500 26px var(--ff);color:#56636f}
+#bPhase.h{color:#7a2a24}
+#bClock{font:300 clamp(80px,26vw,150px)/1 var(--ff);font-variant-numeric:tabular-nums;color:#3d4954}
+#bInfo{font-size:17px}
+#bHelp{font-size:15px;max-width:22em;margin:18px auto 0;color:#3a4652}
+#bClose{position:absolute;top:max(14px,env(safe-area-inset-top,0px));right:14px;font:500 15px var(--ff);background:none;border:1px solid #26313b;color:#56636f;border-radius:999px;min-height:44px;padding:0 16px;cursor:pointer}
+/* night */
+.sky{position:relative;width:min(100%,360px);aspect-ratio:1;border-radius:24px;background:radial-gradient(circle at 50% 45%,#2b336d 0,#151937 70%);overflow:hidden;display:grid;place-items:center}
+.sky>svg{position:absolute;inset:0;width:100%;height:100%}
+.moon{position:relative;width:66%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 36% 32%,#fffaea 0,#f3e2ad 55%,#d8bd72 100%);box-shadow:0 0 60px rgba(243,226,173,.35);transform:scale(.7);transition:transform 1s ease-in-out}
+.moon .face{position:absolute;inset:0;width:100%;height:100%;display:none}
+body.kid .moon .face{display:block}
+.nlabel{font:500 clamp(28px,7vw,38px)/1.1 var(--ff);text-align:center;min-height:44px}
+.nsub{color:var(--mute);text-align:center;margin-top:-10px}
+.exs{display:grid;gap:10px}
+.ex{display:grid;gap:2px;text-align:left;font:inherit;color:var(--ink);background:var(--deep);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+.ex b{font-size:18px;font-weight:500}
+.ex span{color:var(--mute);font-size:14px}
+.ex small{color:var(--aqua);font-size:13px}
+.ex[aria-pressed=true]{border-color:var(--aqua);box-shadow:inset 0 0 0 1px var(--aqua)}
+.ex:disabled,.btn.d:disabled{opacity:.6;cursor:default}
+.starrow{font-size:26px;letter-spacing:4px;color:#f3dd9b;overflow-wrap:anywhere;line-height:1.3}
+/* kids */
+.sea{position:relative;width:min(100%,400px);aspect-ratio:1;border-radius:28px;overflow:hidden;border:5px solid #fff;box-shadow:0 8px 0 rgba(13,49,87,.2)}
+.sea svg{position:absolute;inset:0;width:100%;height:100%}
+.bub{animation:rise 7s linear infinite;opacity:0}
+@keyframes rise{0%{transform:translateY(0);opacity:0}10%{opacity:.85}100%{transform:translateY(-330px);opacity:0}}
+.kbig{font:600 clamp(44px,12vw,64px)/1 var(--ff);text-shadow:0 3px 0 rgba(13,49,87,.25);text-align:center}
+.ksub{font-size:18px;text-align:center;margin-top:-8px}
+.stks{display:grid;grid-template-columns:repeat(auto-fill,minmax(9em,1fr));gap:14px}
+.stk{display:grid;justify-items:center;text-align:center;gap:4px}
+.stk svg{width:104px;height:104px;filter:drop-shadow(0 4px 0 rgba(13,49,87,.15))}
+.stk.lock svg{filter:grayscale(1);opacity:.35}
+.stk b{font-size:16px;font-weight:600;line-height:1.2}
+.stk span{font-size:13px;color:var(--mute);line-height:1.3}
+.stk.new svg{animation:pop .9s ease-out}
+.path{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:22px;padding-top:6px}
+.ptrack{position:absolute;left:0;right:12.5%;top:38px;height:10px;border-radius:5px;background:var(--deep);overflow:hidden}
+.ptrack i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#ffd23f,#ff9f1c);border-radius:5px;transition:width .6s ease-out}
+.chest{position:relative;display:grid;justify-items:center;align-content:start;text-align:center;gap:2px}
+body.kid .pbBig{font-weight:600}
+.chest svg{width:64px;height:54px;filter:drop-shadow(0 3px 0 rgba(13,49,87,.15))}
+.chest b{font-size:15px;font-weight:600;white-space:nowrap}
+.chest span{font-size:13px;line-height:1.25;color:var(--mute)}
+.chest .give{font:500 13px var(--ff);margin-top:4px;min-height:34px;border-radius:999px;padding:0 10px;border:2px solid #2ec4b6;background:#fff;color:#0d3157;cursor:pointer}
+.chest .give[aria-pressed=true]{background:#2ec4b6;color:#fff}
+.team{height:16px;border-radius:8px;background:var(--deep);overflow:hidden;margin:8px 0 4px}
+.team i{display:block;height:100%;background:linear-gradient(90deg,#2ec4b6,#4f8ef0);border-radius:8px;transition:width .6s ease-out}
+body.adult .team i{background:linear-gradient(90deg,#5d6b78,#dff5e8)}
+.fam{display:grid;gap:10px;margin-top:14px}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
+.frow .bar{grid-column:1/-1}
+.frow b{font-weight:500;overflow-wrap:anywhere}
+.frow .bar{height:12px;border-radius:6px;background:var(--deep);overflow:hidden}
+.frow .bar i{display:block;height:100%;background:var(--aqua);border-radius:6px}
+.frow span{font-size:14px;color:var(--mute);white-space:nowrap;text-align:right}
+.dlist{display:flex;flex-wrap:wrap;gap:8px}
+.dlist span{background:var(--deep);border-radius:999px;padding:4px 12px;font-size:15px}
+@media(max-width:780px){.app{grid-template-columns:minmax(0,1fr)}.left{position:static}}
+@media(max-width:600px){table{font-size:14px}th,td{padding:7px 4px}}
+@media(prefers-reduced-motion:reduce){.moon,.lf,.you{transition:none!important}.bub,.ach.new .md,.stk.new svg{animation:none}}
+</style>
+</head>
+<body class="adult">
+<main class="wrap">
+  <header>
+    <h1 id="title">Atemtraining</h1>
+    <div class="who">
+      <button class="pill" data-a="people" id="whoBtn">Person wählen</button>
+      <button class="link" data-a="rename" id="renBtn">Profil bearbeiten</button>
+      <form id="renForm" hidden>
+        <input type="text" id="renIn" maxlength="24" aria-label="Name" autocomplete="off">
+        <div class="seg" id="kindSeg"></div>
+        <button class="btn pri" type="submit">Speichern</button>
+        <button class="btn" type="button" data-a="renCancel">Abbrechen</button>
+        <button class="link" type="button" data-a="clear" id="clearBtn">Profil leeren</button>
+      </form>
+    </div>
+  </header>
+
+  <section id="picker" hidden>
+    <h2>Wer trainiert?</h2>
+    <div class="people" id="people"></div>
+    <div class="panel" style="margin-top:18px" id="famPick"></div>
+    <details class="panel" style="margin-top:18px">
+      <summary>Daten sichern oder auf ein anderes Gerät übertragen</summary>
+      <p class="note">Der Backup-Code enthält alle zehn Profile. Kopier ihn zum Beispiel in deine Notizen und füg ihn auf dem neuen Gerät hier ein.</p>
+      <div class="row" style="margin-top:12px"><button class="btn" data-a="bcopy">Backup-Code kopieren</button></div>
+      <textarea id="bout" readonly hidden aria-label="Backup-Code"></textarea>
+      <h3>Code einlesen</h3>
+      <textarea id="bin" aria-label="Backup-Code einfügen" placeholder="Code hier einfügen"></textarea>
+      <div class="row" style="margin-top:10px"><button class="btn" data-a="bload" id="bloadBtn">Code einlesen</button></div>
+      <p class="note" id="bmsg"></p>
+    </details>
+    <p class="note">Die Profile bleiben auf diesem Gerät. Wer den Link woanders öffnet, startet mit eigenen, leeren Profilen.</p>
+  </section>
+
+  <section id="main" hidden>
+    <nav class="tabs" role="tablist" id="tabs"></nav>
+
+    <div id="v-train">
+      <div class="panel today" id="today"></div>
+      <div class="app">
+        <section class="left">
+          <div class="dial" id="dial">
+            <svg viewBox="0 0 300 300" aria-hidden="true">
+              <defs>
+                <radialGradient id="gDial" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#1b2835"/><stop offset=".7" stop-color="#0a1017"/><stop offset="1" stop-color="#05080b"/></radialGradient>
+                <linearGradient id="gBezel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a63b4"/><stop offset=".5" stop-color="#143a75"/><stop offset="1" stop-color="#0b2349"/></linearGradient>
+                <linearGradient id="gCase" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f6f8"/><stop offset=".45" stop-color="#8d98a3"/><stop offset=".55" stop-color="#c8cfd6"/><stop offset="1" stop-color="#5a6570"/></linearGradient>
+              </defs>
+              <circle cx="150" cy="150" r="149" fill="url(#gCase)"/>
+              <circle cx="150" cy="150" r="144" fill="url(#gBezel)"/>
+              <g id="bezel" fill="#fff" stroke="#fff"></g>
+              <circle cx="150" cy="150" r="120" fill="#c8cfd6"/>
+              <circle cx="150" cy="150" r="118" fill="url(#gDial)"/>
+              <g id="idx"></g>
+              <circle cx="150" cy="150" r="86" fill="none" stroke="#16222d" stroke-width="5"/>
+              <circle id="prog" cx="150" cy="150" r="86" fill="none" style="stroke:var(--c)" stroke-width="5" stroke-linecap="round" transform="rotate(-90 150 150)"/>
+              <g id="pip"><polygon points="150,72 144,60 156,60" style="fill:var(--c)"/></g>
+            </svg>
+            <div class="read" aria-live="polite">
+              <div id="phase">Bereit</div>
+              <div id="clock">1:00</div>
+              <div id="rnd"></div>
+              <div id="nxt"></div>
+            </div>
+          </div>
+          <div class="ctrl" id="ctrl"></div>
+          <p class="warn">Nur im Liegen an Land. Nie im Wasser, nie in der Badewanne.</p>
+        </section>
+        <section class="right">
+          <div class="panel">
+            <h2>Tabelle</h2>
+            <fieldset id="fs">
+              <div class="seg" id="modeSeg"></div>
+              <p class="note" id="modeNote"></p>
+              <div class="row" style="margin-top:14px">
+                <label for="max">Bestzeit im Liegen (Minuten:Sekunden)</label>
+                <button class="btn" type="button" data-a="m5" aria-label="5 Sekunden weniger">−5</button>
+                <input type="text" id="max" inputmode="decimal" autocomplete="off" value="2:00">
+                <button class="btn" type="button" data-a="p5" aria-label="5 Sekunden mehr">+5</button>
+              </div>
+              <p class="note" id="exnote">Beispielwert. Trag die Zeit ein oder miss sie mit „Bestzeit messen“.</p>
+              <div class="facts" id="facts"></div>
+              <details>
+                <summary>Tabelle anpassen</summary>
+                <div class="grid2">
+                  <label>CO2: Haltezeit in % der Bestzeit<input type="number" id="c-pct" min="30" max="80" step="5"></label>
+                  <label>CO2: erste Pause (Sek.)<input type="number" id="c-start" min="30" max="240" step="5"></label>
+                  <label>CO2: Pause kürzer pro Runde (Sek.)<input type="number" id="c-step" min="0" max="60" step="5"></label>
+                  <label>CO2: kürzeste Pause (Sek.)<input type="number" id="c-min" min="5" max="120" step="5"></label>
+                  <label>O2: Pause (Sek.)<input type="number" id="c-o2rest" min="60" max="240" step="15"></label>
+                  <label>Runden<input type="number" id="c-rounds" min="3" max="12" step="1"></label>
+                </div>
+              </details>
+            </fieldset>
+          </div>
+          <div class="panel">
+            <h2>Ablauf</h2>
+            <div class="scroll"><table>
+              <thead><tr><th>Runde</th><th>Atmen</th><th>Halten</th><th>Kontr.</th><th>Ergebnis</th></tr></thead>
+              <tbody id="tb"></tbody>
+            </table></div>
+          </div>
+          <div class="panel">
+            <h2>Verlauf</h2>
+            <div id="hint"></div>
+            <div id="hist"></div>
+            <p class="note">Regel: Zwei CO2-Sessions hintereinander alle Runden voll, dann Haltezeit +5 Sekunden.</p>
+          </div>
+          <div class="panel">
+            <h2>Apnoe-Gehen</h2>
+            <div id="walks"></div>
+            <p class="note">Nach dem Einatmen Luft anhalten und ruhig gehen, Schritte im Kopf zählen. Nur auf ebenem Boden, weg von Straßen, Treppen und Wasser, und lieber mit jemandem dabei.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="v-ach" hidden>
+      <div class="panel">
+        <div class="pos"><div class="pbBig" id="pbBig">0:00</div><div class="posTxt" id="posTxt"></div></div>
+        <div class="ladder" id="ladder"></div>
+        <p class="note">Die AIDA-Zeiten gelten im Kurs im Wasser. Hier misst du trocken, im Wasser ist meist etwas mehr drin.</p>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <h2>Entwicklung</h2>
+        <div id="chartWrap"><div class="fig" id="chart"><svg id="chartSvg" role="img" aria-label="Bestzeit, Haltezeit und erste Kontraktion im Verlauf"></svg></div>
+          <p class="note">Weiße Linie: Bestzeit. Rote Punkte: Haltezeit der Tabellen, gefüllt heißt alle Runden voll. Blaue Rauten: erste Kontraktion im Schnitt. Gestrichelt: AIDA-Stufen.</p></div>
+        <p class="empty" id="chartWait"></p>
+        <div class="facts" id="stats"></div>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <h2 id="achHead">Achievements</h2>
+        <div id="achList"></div>
+      </div>
+    </div>
+
+    <div id="v-dive" class="app" hidden>
+      <section class="left">
+        <div class="sea">
+          <svg viewBox="0 0 400 400" aria-hidden="true">
+            <defs>
+              <linearGradient id="gSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fe0fb"/><stop offset=".5" stop-color="#2aa6e6"/><stop offset="1" stop-color="#0d5ea8"/></linearGradient>
+            </defs>
+            <rect width="400" height="400" fill="url(#gSea)"/>
+            <rect width="400" height="40" fill="#bdf2ff" opacity=".55"/>
+            <path d="M0 40 Q25 30 50 40 T100 40 T150 40 T200 40 T250 40 T300 40 T350 40 T400 40" fill="none" stroke="#fff" stroke-width="4" opacity=".8"/>
+            <g opacity=".14" fill="#fff"><polygon points="60,40 110,40 40,400 0,400"/><polygon points="220,40 260,40 250,400 170,400"/><polygon points="330,40 360,40 400,300 400,400 340,400"/></g>
+            <g id="bubs"></g>
+            <path d="M0 352 Q60 330 120 348 T240 346 T400 340 L400 400 L0 400 Z" fill="#f6d38b"/>
+            <path d="M0 372 Q80 358 160 370 T400 362 L400 400 L0 400 Z" fill="#e9bd67"/>
+            <g fill="none" stroke-width="7" stroke-linecap="round"><path d="M40 360 C30 330 55 315 42 285 C32 262 50 250 46 232" stroke="#2ec27e"/><path d="M58 362 C66 338 50 322 62 300" stroke="#27a86c"/><path d="M350 356 C362 330 340 312 352 290 C362 270 346 256 352 240" stroke="#2ec27e"/></g>
+            <g fill="#ff8fab"><circle cx="300" cy="352" r="9"/><circle cx="314" cy="346" r="7"/><circle cx="288" cy="346" r="6"/></g>
+            <g id="whale" transform="translate(200 92)">
+              <path d="M-58 4 C-78 -6 -92 -22 -100 -30 C-98 -14 -92 0 -88 6 C-94 14 -100 26 -100 38 C-90 28 -76 16 -58 12 Z" fill="#3a6fd0"/>
+              <ellipse cx="0" cy="0" rx="66" ry="42" fill="#4f8ef0"/>
+              <path d="M-50 14 C-20 40 40 42 64 8 C58 30 30 44 0 42 C-24 42 -42 30 -50 14 Z" fill="#cfe6ff"/>
+              <ellipse cx="-6" cy="22" rx="18" ry="8" fill="#3a6fd0" transform="rotate(25 -6 22)"/>
+              <circle cx="34" cy="-6" r="7" fill="#0d3157"/><circle cx="36" cy="-8" r="2.4" fill="#fff"/>
+              <circle cx="44" cy="8" r="6" fill="#ff8fab" opacity=".7"/>
+              <path d="M40 16 Q52 22 60 12" fill="none" stroke="#0d3157" stroke-width="3" stroke-linecap="round"/>
+              <g id="spout" fill="#bdf2ff"><circle cx="-6" cy="-52" r="6"/><circle cx="-16" cy="-62" r="5"/><circle cx="4" cy="-64" r="5"/></g>
+            </g>
+            <g font-family="Fredoka, sans-serif" font-size="20" font-weight="600" fill="#fff" text-anchor="end"><text x="388" y="70" id="depthTxt" style="paint-order:stroke;stroke:#0d5ea8;stroke-width:5px">0 m</text></g>
+          </svg>
+        </div>
+        <div class="kbig" id="kbig">Bereit?</div>
+        <div class="ksub" id="ksub">Tippe auf „Abtauchen“</div>
+        <div class="ctrl" id="kctrl"></div>
+      </section>
+      <section class="right">
+        <div class="panel">
+          <h2>Deine Tauchgänge</h2>
+          <div id="kdives"></div>
+        </div>
+        <div class="panel">
+          <h2>Für Eltern</h2>
+          <p style="margin:0">Höchstens 45 Sekunden pro Tauchgang, danach taucht der Wal automatisch auf. Mindestens eine Minute Pause dazwischen und höchstens fünf Tauchgänge am Tag. Nur im Bett oder auf dem Sofa, nie im Wasser und nie in der Badewanne.</p>
+        </div>
+      </section>
+    </div>
+
+    <div id="v-schatz" hidden>
+      <div class="panel">
+        <h2>Perlen vom Tauchspiel</h2>
+        <div class="pos"><div class="pbBig" id="pearlBig">0</div><div class="posTxt" id="pearlTxt"></div></div>
+        <div class="path" id="pathP"></div>
+        <p class="note">Jeden Tag mit mindestens einem Tauchgang gibt es eine Perle.</p>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <h2>Sterne vom Einschlafen</h2>
+        <div class="pos"><div class="pbBig" id="starBig">0</div><div class="posTxt" id="starTxt"></div></div>
+        <div class="path" id="pathN"></div>
+        <p class="note">Jeden Abend mit einer ganzen Einschlafübung gibt es einen Stern.</p>
+        <details>
+          <summary>Belohnungen festlegen (für Eltern)</summary>
+          <h3>Perlen</h3><div class="grid2" id="rewEditP"></div>
+          <h3>Sterne</h3><div class="grid2" id="rewEditN"></div>
+        </details>
+      </div>
+      <div class="panel" style="margin-top:18px" id="famKid"></div>
+      <div class="panel" style="margin-top:18px"><h2 id="stkHead">Sticker</h2><div class="stks" id="stks"></div></div>
+    </div>
+
+    <div id="v-night" class="app" hidden>
+      <section class="left">
+        <div class="sky"><svg id="starsSvg" aria-hidden="true"></svg><div class="moon" id="moon"><svg class="face" viewBox="0 0 100 100" aria-hidden="true"><path d="M28 46 Q35 52 42 46" fill="none" stroke="#8a6a2a" stroke-width="3" stroke-linecap="round"/><path d="M58 46 Q65 52 72 46" fill="none" stroke="#8a6a2a" stroke-width="3" stroke-linecap="round"/><circle cx="26" cy="60" r="6" fill="#f3a7a0" opacity=".6"/><circle cx="74" cy="60" r="6" fill="#f3a7a0" opacity=".6"/><path d="M44 64 Q50 69 56 64" fill="none" stroke="#8a6a2a" stroke-width="3" stroke-linecap="round"/></svg></div></div>
+        <div class="nlabel" id="nlabel" aria-live="polite">Bereit für die Nacht</div>
+        <div class="nsub" id="nsub"></div>
+        <div class="ctrl" id="nctrl"></div>
+      </section>
+      <section class="right">
+        <div class="panel">
+          <h2>Übung</h2>
+          <div class="exs" id="exs"></div>
+          <h3>Dauer</h3>
+          <div class="row" id="durs"></div>
+        </div>
+        <div class="panel">
+          <h2>Sterne</h2>
+          <div id="starLog"></div>
+        </div>
+        <div class="panel">
+          <h2>Für Eltern</h2>
+          <p style="margin:0">Langes Ausatmen beruhigt, weil es den Puls senkt. Die Pausen sind bewusst kurz: Hier geht es ums ruhige Atmen, nicht ums Luftanhalten. Nach drei Atemzügen verstummt die Ansage, dann führen nur noch der Mond und leise Töne.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="chips">
+      <label class="chip"><input type="checkbox" id="t-sound"> Ton</label>
+      <label class="chip"><input type="checkbox" id="t-voice"> Ansage</label>
+      <label class="chip"><input type="checkbox" id="t-vib"> Vibration</label>
+      <label class="chip" id="blindChip"><input type="checkbox" id="t-blind"> Augen-zu-Modus</label>
+      <button class="chip" data-a="soundtest">Ton testen</button>
+    </div>
+    <p class="warn" style="margin-top:10px">Kein Ton? Lautstärke hochdrehen. Hilft das nicht, den Lautlos-Schalter am iPhone ausschalten.</p>
+  </section>
+</main>
+
+<div id="blind" hidden>
+  <button id="bClose" data-a="blindHide">Ansicht schließen</button>
+  <div class="bb">
+    <div id="bPhase">Atmen</div>
+    <div id="bClock">0:00</div>
+    <div id="bInfo"></div>
+    <div id="bHelp">Tippen: Kontraktion. Gedrückt halten: Luft geholt.</div>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+{
+const $ = id => document.getElementById(id);
+const C = 2 * Math.PI * 86;
+const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const parse = v => { v = String(v).trim().replace(/[.,]/, ':'); if (!v) return NaN; if (v.includes(':')) { const [a, b] = v.split(':'); return (+a || 0) * 60 + (+b || 0); } const n = +v; return n <= 10 ? n * 60 : n; };
+const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const today = () => ymd(new Date());
+const dayOff = n => { const d = new Date(); d.setDate(d.getDate() + n); return ymd(d); };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const r5 = v => Math.max(10, Math.round(v / 5) * 5);
+const day = d => Date.parse(d + 'T00:00:00Z');
+const dm = d => { const [, m, x] = d.split('-'); return x + '.' + m + '.'; };
+
+const EX = [
+  {id: 'ballon', name: 'Ballonbauch', desc: 'Hand auf den Bauch. Beim Einatmen wird der Ballon groß, beim Ausatmen ganz langsam wieder klein.', p: [4, 0, 6, 0], l: ['Ballon aufpusten', '', 'Luft rauslassen', '']},
+  {id: 'blume', name: 'Blume und Kerze', desc: 'An einer Blume riechen, dann so sanft pusten, dass die Kerze nur flackert und nicht ausgeht.', p: [3, 1, 5, 0], l: ['An der Blume riechen', 'Kurz halten', 'Kerze anpusten', '']},
+  {id: 'viereck', name: 'Viereck', desc: 'Mit dem Finger ein Viereck in die Luft malen. Jede Seite ist ein Schritt.', p: [3, 3, 3, 3], l: ['Einatmen', 'Halten', 'Ausatmen', 'Pause']},
+  {id: 'biene', name: 'Summende Biene', desc: 'Durch die Nase einatmen, beim Ausatmen mit geschlossenem Mund leise summen.', p: [4, 0, 6, 0], l: ['Einatmen', '', 'Leise summen', '']}
+];
+const DURS = [3, 5, 8];
+const KCAP = 45, KREST = 60, KMAX = 5;
+const blankCfg = () => ({max: 120, pct: 50, start: 120, step: 15, min: 30, rounds: 8, hold: null, o2rest: 120});
+const defRewards = () => [{at: 10, t: 'Ein Tauchring-Set für den Pool', got: false}, {at: 20, t: 'Eine Taucherbrille', got: false}, {at: 50, t: 'Ein Ausflug ins Aquarium oder Erlebnisbad', got: false}, {at: 100, t: 'Flossen', got: false}];
+const defRewardsN = () => [{at: 10, t: 'Ein Gute-Nacht-Buch zum Vorlesen', got: false}, {at: 20, t: 'Leuchtsterne für die Zimmerdecke', got: false}, {at: 50, t: 'Ein Sternenhimmel-Projektor als Nachtlicht', got: false}];
+const blankP = i => ({name: 'Person ' + (i + 1), kind: false, tab: 'train', mode: 'co2', cfg: blankCfg(), hist: [], example: true, stars: [], tried: [], ex: 'ballon', dur: 5, maxHist: [], ach: {}, walks: [], kid: {best: 0, dives: []}, rewards: defRewards(), rewardsN: defRewardsN(), seen: [], seenN: [], rv: 2});
+
+let S = {people: [], cur: null, teamGoal: 20, teamSeen: '', set: {sound: true, voice: true, vib: true, blind: false}};
+try {
+  const v2 = JSON.parse(localStorage.getItem('atem-v2') || 'null');
+  if (v2 && v2.people) { S = Object.assign(S, v2); S.set = Object.assign({sound: true, voice: true, vib: true, blind: false}, v2.set || {}); }
+  else {
+    const v1 = JSON.parse(localStorage.getItem('apnoe-co2-v1') || 'null');
+    if (v1) {
+      const p = blankP(0), c = v1.cfg || {};
+      ['max', 'pct', 'start', 'step', 'min', 'rounds', 'hold'].forEach(k => { if (k in c) p.cfg[k] = c[k]; });
+      p.hist = v1.hist || []; p.example = !!v1.example;
+      ['sound', 'voice', 'vib'].forEach(k => { if (k in c) S.set[k] = c[k]; });
+      S.people[0] = p;
+    }
+  }
+} catch (e) {}
+for (let i = 0; i < 10; i++) {
+  const p = S.people[i] = Object.assign(blankP(i), S.people[i] || {});
+  p.cfg = Object.assign(blankCfg(), p.cfg); p.kid = Object.assign({best: 0, dives: []}, p.kid);
+  if (p.tab === 'apnoe') p.tab = 'train';
+  if (p.tab === 'sticker') p.tab = 'schatz';
+  if (p.rv !== 2 || !Array.isArray(p.rewards) || !Array.isArray(p.rewardsN)) { p.rewards = defRewards(); p.rewardsN = defRewardsN(); p.seen = []; p.seenN = []; p.rv = 2; }
+  if (!p.maxHist.length && !p.example) p.maxHist.push({d: p.hist.length ? p.hist[p.hist.length - 1].d : today(), t: p.cfg.max});
+}
+if (S.tab) { if (S.cur != null) S.people[S.cur].tab = S.tab === 'apnoe' ? 'train' : S.tab; delete S.tab; }
+if (S.cur != null && !S.people[S.cur]) S.cur = null;
+const save = () => { try { localStorage.setItem('atem-v2', JSON.stringify(S)); } catch (e) {} };
+const P = () => S.people[S.cur];
+let cfg = S.cur != null ? P().cfg : blankCfg();
+let showPicker = S.cur == null, renaming = false, clearArm = false, loadArm = false, newIds = new Set();
+
+/* ---------- Audio ---------- */
+let ac = null, silent = null, wl = null;
+const silentUrl = () => { const n = 4000, b = new Uint8Array(44 + n), v = new DataView(b.buffer), w = (o, s) => { for (let i = 0; i < s.length; i++) b[o + i] = s.charCodeAt(i); }; w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true); b.fill(128, 44); return URL.createObjectURL(new Blob([b], {type: 'audio/wav'})); };
+const unlock = () => {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+  try { if (!silent) { silent = new Audio(silentUrl()); silent.loop = true; silent.setAttribute('playsinline', ''); } const pr = silent.play(); if (pr) pr.catch(() => {}); } catch (e) {}
+  try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); ac.resume(); } catch (e) {}
+};
+const quiet = () => { try { silent && silent.pause(); } catch (e) {} };
+const tone = (f, d, vol) => { if (!S.set.sound || !ac) return; try { const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = f; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + Math.min(.15, d / 4)); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + d + .05); } catch (e) {} };
+const beep = (f, d) => tone(f, d, .45);
+const deVoice = () => { try { return speechSynthesis.getVoices().find(v => /^de/i.test(v.lang)); } catch (e) { return null; } };
+const say = (t, rate) => { if (!S.set.voice || !t) return; try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'de-DE'; const v = deVoice(); if (v) u.voice = v; u.rate = rate || .95; speechSynthesis.speak(u); } catch (e) {} };
+const vib = p => { if (!S.set.vib) return; try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+const wake = async on => { try { if (on && 'wakeLock' in navigator) wl = await navigator.wakeLock.request('screen'); else if (!on && wl) { await wl.release(); wl = null; } } catch (e) {} };
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (run || nrun || krun)) wake(true); });
+
+/* ---------- Training (Erwachsene) ---------- */
+let run = null, last = null, tm = null, lastSec = null, hideBlind = false;
+const holdT = () => cfg.hold || r5(cfg.max * cfg.pct / 100);
+const co2Rests = () => Array.from({length: cfg.rounds}, (_, i) => Math.max(cfg.min, cfg.start - i * cfg.step));
+function planOf(type) {
+  const n = cfg.rounds;
+  if (type === 'o2') {
+    const top = r5(cfg.max * .8), base = r5(cfg.max * .5), st = Math.max(5, r5((top - base) / Math.max(1, n - 1)) || 5);
+    return {type: 'o2', rests: Array(n).fill(cfg.o2rest), holds: Array.from({length: n}, (_, i) => Math.min(top, base + i * st))};
+  }
+  return {type: 'co2', rests: co2Rests(), holds: Array(n).fill(holdT())};
+}
+const dur = pl => pl.rests.reduce((a, b) => a + b, 0) + pl.holds.reduce((a, b) => a + b, 0);
+const co2Hist = () => P().hist.filter(x => x.type !== 'o2');
+const prog = () => { const h0 = co2Hist(); if (h0.length < 2) return null; const [a, b] = h0, h = holdT(); return (a.hold === h && b.hold === h && a.done === a.total && b.done === b.total) ? h + 5 : null; };
+const NAMES = {breathe: 'Atmen', hold: 'Halten', prep: 'Ruhig atmen', rest: 'Pause', test: 'Halten', walk: 'Gehen'};
+const cur = () => run && run.phases[run.i];
+const el = () => ((run.paused ? run.pausedAt : performance.now()) - run.t0) / 1000;
+const isHold = ph => ph && (ph.k === 'hold' || ph.k === 'test' || ph.k === 'walk');
+
+function cue(ph) {
+  if (ph.k === 'breathe') { say(ph.r === 0 ? 'Ruhig atmen' : 'Atmen'); beep(440, .35); vib(80); }
+  else if (ph.k === 'hold' || ph.k === 'test') { say('Luft anhalten'); beep(740, .5); vib([200, 100, 200]); }
+  else if (ph.k === 'walk') { say('Luft anhalten und losgehen'); beep(740, .5); vib([200, 100, 200]); }
+  else if (ph.k === 'prep') say(run.mode === 'walk' ? 'Eine Minute ruhig atmen.' : 'Zwei Minuten ruhig atmen. Lang ausatmen.');
+  else if (ph.k === 'rest') say('Pause. Ruhig atmen.');
+}
+function secCue(ph, s) {
+  if (s === lastSec) return; lastSec = s;
+  if (ph.k === 'hold') { if (s === 10) beep(520, .12); return; }
+  if (s === 10) { say('Noch zehn Sekunden'); beep(660, .12); }
+  if (s <= 3 && s >= 1) beep(880, .1);
+}
+function next() {
+  run.i++;
+  const ph = cur();
+  if (!ph) { finish(); return; }
+  run.t0 = performance.now(); run.paused = false; lastSec = null;
+  cue(ph); render();
+}
+function tick() {
+  if (!run || run.paused || run.wait) return;
+  const ph = cur(); if (!ph) return;
+  const e = el();
+  if (ph.up) {
+    const s = Math.floor(e);
+    if (s !== lastSec) { lastSec = s; if (s > 0 && s % 30 === 0) beep(520, .08); if (ph.k === 'test' && s === cfg.max && !P().example) { beep(990, .15); setTimeout(() => beep(990, .15), 220); } }
+  } else {
+    const rem = ph.t - e;
+    if (rem <= 0) { if (run.mode === 'session' && ph.k === 'hold') run.res[ph.r].s = 'ok'; next(); return; }
+    secCue(ph, Math.ceil(rem));
+  }
+  draw();
+}
+const loop = () => { clearInterval(tm); tm = setInterval(tick, 100); };
+function begin(r) { unlock(); last = null; hideBlind = false; run = r; next(); loop(); wake(true); }
+function startSession(type) {
+  const pl = planOf(type || P().mode), p = [];
+  pl.rests.forEach((r, i) => { p.push({k: 'breathe', t: r, r: i}); p.push({k: 'hold', t: pl.holds[i], r: i}); });
+  begin({mode: 'session', type: pl.type, pl, phases: p, i: -1, res: pl.holds.map(() => ({s: '', c: null, n: 0, t: null}))});
+}
+const startTest = () => begin({mode: 'test', phases: [{k: 'prep', t: 120}, {k: 'test', up: true}], i: -1, best: 0, tries: []});
+const startWalk = () => begin({mode: 'walk', phases: [{k: 'prep', t: 60}, {k: 'walk', up: true}], i: -1});
+function logSession() {
+  const res = run.res, done = res.filter(x => x.s === 'ok').length, tried = res.filter(x => x.s).length;
+  const firsts = res.filter(x => x.c != null).map(x => x.c);
+  if (tried) {
+    P().hist.unshift({d: today(), type: run.type, max: cfg.max, hold: Math.max(...run.pl.holds), done, total: res.length,
+      cmax: Math.round(Math.max(0, ...firsts)), cfirst: firsts.length ? Math.round(firsts.reduce((a, b) => a + b, 0) / firsts.length) : 0, ccount: res.reduce((a, x) => a + x.n, 0)});
+    P().hist = P().hist.slice(0, 300); save();
+  }
+  return done;
+}
+function finish() {
+  clearInterval(tm);
+  const before = snap(P()), done = logSession();
+  last = {pl: run.pl, res: run.res, done, total: run.res.length};
+  run = null; wake(false);
+  say('Geschafft. Ruhig weiteratmen.'); beep(520, .2); setTimeout(() => { beep(660, .3); setTimeout(quiet, 1800); }, 250); vib([100, 80, 100]);
+  render(); toast([...gainItems(P(), before), ...check(P())]);
+}
+function stop() {
+  clearInterval(tm);
+  const before = snap(P());
+  if (run && run.mode === 'session') { const done = logSession(); last = {pl: run.pl, res: run.res, done, total: run.res.length, stopped: true}; }
+  run = null; wake(false); quiet();
+  try { speechSynthesis.cancel(); } catch (e) {}
+  render(); toast([...gainItems(P(), before), ...check(P())]);
+}
+function recordMax(t) { const h = P().maxHist, d = today(); if (h.length && h[h.length - 1].d === d) h[h.length - 1].t = t; else h.push({d, t}); }
+function setMax(v) {
+  if (!isFinite(v)) { render(); return; }
+  cfg.max = Math.min(600, Math.max(20, Math.round(v))); cfg.hold = null; P().example = false; recordMax(cfg.max); save(); render(); toast(check(P()));
+}
+function todayPlan(p) {
+  const acts = new Set([...p.hist.map(x => x.d), ...p.maxHist.map(x => x.d), ...p.walks.map(x => x.d)]);
+  const lastS = p.hist[0], nextT = lastS && lastS.type !== 'o2' ? 'o2' : 'co2';
+  const label = t => t === 'o2' ? 'O2-Tabelle' : 'CO2-Tabelle';
+  if (p.example) return {k: 'test', b: 'Bestzeit messen', s: 'Damit die Tabellen zu dir passen.'};
+  if (acts.has(today())) return {k: 'done', b: 'Heute erledigt', s: 'Morgen: ' + label(nextT) + '. Gut gemacht.'};
+  if (acts.has(dayOff(-1)) && acts.has(dayOff(-2))) return {k: 'rest', b: 'Heute Pause', s: 'Zwei Tage am Stück trainiert. Erholung gehört zum Training.'};
+  const lt = p.maxHist.length ? p.maxHist[p.maxHist.length - 1].d : null;
+  const since = lt ? p.hist.filter(x => x.d > lt).length : 0, days = lt ? Math.round((day(today()) - day(lt)) / 864e5) : 99;
+  if (days >= 7 && since >= 2) return {k: 'test', b: 'Bestzeit testen', s: 'Letzter Test vor ' + days + ' Tagen. Zeit für einen neuen Wert.'};
+  const pl = planOf(nextT);
+  return {k: nextT, b: label(nextT), s: pl.holds.length + ' Runden, ca. ' + Math.round(dur(pl) / 60) + ' Min.' + (nextT === 'o2' ? ' Haltezeit steigt bis ' + fmt(Math.max(...pl.holds)) + '.' : ' Haltezeit ' + fmt(pl.holds[0]) + '.')};
+}
+function draw() {
+  const ph = cur(); if (!ph) return;
+  let shown, frac;
+  if (run.wait) { shown = run.last; frac = Math.min(1, run.last / cfg.max); }
+  else if (ph.up) { shown = Math.floor(el()); frac = Math.min(1, el() / cfg.max); }
+  else { const e = el(); shown = Math.ceil(Math.max(0, ph.t - e)); frac = Math.min(1, e / ph.t); }
+  $('clock').textContent = fmt(shown);
+  setDial(frac);
+  updBlind(shown);
+}
+function setDial(frac) { $('prog').style.strokeDashoffset = C * (1 - frac); $('pip').setAttribute('transform', `rotate(${frac * 360} 150 150)`); }
+function updBlind(shown) {
+  const ph = cur(), on = S.set.blind && run && !run.wait && !hideBlind && !P().kind;
+  $('blind').hidden = !on; if (!on) return;
+  const h = isHold(ph);
+  $('bPhase').textContent = run.paused ? 'Pausiert' : NAMES[ph.k]; $('bPhase').className = h ? 'h' : '';
+  $('bClock').textContent = fmt(shown);
+  let info = '';
+  if (run.mode === 'session') { const x = run.res[ph.r]; info = 'Runde ' + (ph.r + 1) + ' von ' + run.res.length + (ph.k === 'hold' && x.n ? ', ' + x.n + (x.n === 1 ? ' Kontraktion' : ' Kontraktionen') : ''); }
+  else info = run.mode === 'walk' ? 'Apnoe-Gehen' : 'Bestzeit-Test';
+  $('bInfo').textContent = info;
+  $('bHelp').textContent = !h ? 'Ruhig atmen. Ton und Ansage sagen dir, wann es weitergeht.' : run.mode === 'session' ? 'Tippen: Kontraktion. Gedrückt halten: Luft geholt.' : 'Gedrückt halten: Luft geholt.';
+}
+function ctrlHTML() {
+  const p = P();
+  if (!run) return `<button class="btn pri big" data-a="start">${p.mode === 'o2' ? 'O2' : 'CO2'}-Tabelle starten</button><button class="btn" data-a="test">Bestzeit messen</button><button class="btn" data-a="walk">Apnoe-Gehen</button>`;
+  const ph = cur(), pz = `<button class="btn" data-a="pause">${run.paused ? 'Weiter' : 'Pause'}</button>`;
+  const bl = S.set.blind && hideBlind && !run.wait ? `<button class="btn" data-a="blindShow">Augen-zu-Ansicht</button>` : '';
+  if (run.mode === 'test') {
+    if (run.wait) return `<p class="result">Versuch ${run.tries.length}: <b>${fmt(run.last)}</b>, beste Zeit heute <b>${fmt(run.best)}</b></p><button class="btn pri big" data-a="take">${fmt(run.best)} als Bestzeit übernehmen</button><button class="btn" data-a="again">Zweiter Versuch nach 4 Min.</button><button class="btn" data-a="stop">Verwerfen</button>`;
+    if (ph.k === 'test') return `<button class="btn hot big" data-a="air">Luft geholt</button>${bl}<button class="btn" data-a="stop">Abbrechen</button>`;
+    return `<button class="btn pri big" data-a="skip">Jetzt Luft anhalten</button>${pz}${bl}<button class="btn" data-a="stop">Abbrechen</button>`;
+  }
+  if (run.mode === 'walk') {
+    if (run.wait) return `<p class="result">Zeit <b>${fmt(run.last)}</b>. Wie viele Schritte?</p><input type="number" id="steps" inputmode="numeric" min="0" max="999" aria-label="Schritte" placeholder="0"><button class="btn pri" data-a="walkSave">Speichern</button><button class="btn" data-a="stop">Verwerfen</button>`;
+    if (ph.k === 'walk') return `<button class="btn hot big" data-a="air">Luft geholt</button>${bl}<button class="btn" data-a="stop">Abbrechen</button>`;
+    return `<button class="btn pri big" data-a="skip">Jetzt losgehen</button>${pz}${bl}<button class="btn" data-a="stop">Abbrechen</button>`;
+  }
+  if (ph.k === 'hold') {
+    const n = run.res[ph.r].n;
+    return `<button class="btn hot big" data-a="air">Luft geholt</button><button class="btn" data-a="contr">Kontraktion${n ? ' (' + n + ')' : ''}</button>${pz}${bl}<button class="btn" data-a="stop">Stopp</button>`;
+  }
+  return `<button class="btn pri big" data-a="pause">${run.paused ? 'Weiter' : 'Pause'}</button><button class="btn" data-a="skip">Pause überspringen</button>${bl}<button class="btn" data-a="stop">Stopp</button>`;
+}
+function renderTrain() {
+  const p = P(), ph = cur(), pl = run && run.pl ? run.pl : last && last.pl ? last.pl : planOf(p.mode);
+  const tp = todayPlan(p);
+  $('today').innerHTML = `<div><span>Heute dran</span><b>${tp.b}</b><span>${tp.s}</span></div>` + (['test', 'co2', 'o2'].includes(tp.k) && !run ? `<button class="btn pri" data-a="todayGo" data-k="${tp.k}">Starten</button>` : '');
+  $('fs').disabled = !!run;
+  if (document.activeElement !== $('max')) $('max').value = fmt(cfg.max);
+  ['pct', 'start', 'step', 'min', 'rounds', 'o2rest'].forEach(k => { if (document.activeElement !== $('c-' + k)) $('c-' + k).value = cfg[k]; });
+  $('exnote').hidden = !p.example;
+  $('modeSeg').innerHTML = [['co2', 'CO2-Tabelle'], ['o2', 'O2-Tabelle']].map(([k, l]) => `<button type="button" class="btn" data-a="mode" data-k="${k}" aria-pressed="${p.mode === k}">${l}</button>`).join('');
+  $('modeNote').textContent = p.mode === 'o2' ? 'Pause bleibt gleich, die Haltezeit steigt bis 80 % deiner Bestzeit. Trainiert, mit wenig Sauerstoff auszukommen.' : 'Haltezeit bleibt gleich, die Pausen werden kürzer. Trainiert, den Atemreiz auszuhalten.';
+  $('dial').className = 'dial ' + (!ph ? 'idle' : isHold(ph) ? 'hold' : 'breathe');
+  if (!run) {
+    if (last) {
+      $('phase').textContent = last.stopped ? 'Gestoppt' : 'Fertig';
+      $('clock').textContent = last.done + '/' + last.total;
+      $('rnd').textContent = 'Runden voll gehalten';
+      $('nxt').textContent = last.pl.type === 'o2' ? 'O2-Tabelle' : 'CO2-Tabelle';
+      setDial(last.done / last.total);
+    } else {
+      $('phase').textContent = p.mode === 'o2' ? 'O2-Tabelle' : 'CO2-Tabelle';
+      $('clock').textContent = fmt(pl.holds[0]);
+      $('rnd').textContent = pl.holds.length + ' Runden, ca. ' + Math.round(dur(pl) / 60) + ' Min.';
+      $('nxt').textContent = 'Erste Pause ' + fmt(pl.rests[0]);
+      setDial(0);
+    }
+    updBlind(0);
+  } else {
+    $('phase').textContent = run.paused ? 'Pausiert' : run.wait ? 'Erholen' : NAMES[ph.k];
+    if (run.mode === 'test') { $('rnd').textContent = ph.k === 'prep' ? 'Vorbereitung' : ph.k === 'rest' ? 'Pause vor Versuch 2' : 'Versuch ' + (run.tries.length + (run.wait ? 0 : 1)); $('nxt').textContent = p.example ? '' : 'Bisherige Bestzeit ' + fmt(cfg.max); }
+    else if (run.mode === 'walk') { $('rnd').textContent = 'Apnoe-Gehen'; $('nxt').textContent = ''; }
+    else { const r = ph.r, n = pl.holds.length; $('rnd').textContent = 'Runde ' + (r + 1) + ' von ' + n; $('nxt').textContent = ph.k === 'breathe' ? 'Danach halten ' + fmt(pl.holds[r]) : r + 1 < n ? 'Danach atmen ' + fmt(pl.rests[r + 1]) : 'Letzte Runde'; }
+    draw();
+  }
+  $('ctrl').innerHTML = ctrlHTML();
+  const fp = planOf(p.mode);
+  $('facts').innerHTML = (p.mode === 'o2' ? [
+    [fmt(fp.holds[0]) + ' → ' + fmt(fp.holds[fp.holds.length - 1]), 'Haltezeit steigt'],
+    [fmt(cfg.o2rest), 'Pause je Runde'],
+    ['ca. ' + Math.round(dur(fp) / 60) + ' Min.', fp.holds.length + ' Runden']
+  ] : [
+    [fmt(holdT()), cfg.hold ? 'Haltezeit (manuell)' : `Haltezeit (${cfg.pct} %)`],
+    [fmt(fp.rests[0]) + ' → ' + fmt(fp.rests[fp.rests.length - 1]), 'Pausen'],
+    ['ca. ' + Math.round(dur(fp) / 60) + ' Min.', fp.holds.length + ' Runden']
+  ]).map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join('') +
+    (cfg.hold && p.mode !== 'o2' ? `<button class="link" data-a="reset">Zurück auf ${cfg.pct} % der Bestzeit</button>` : '');
+  const res = run && run.mode === 'session' ? run.res : last ? last.res : null;
+  const curR = run && run.mode === 'session' && ph ? ph.r : -1;
+  $('tb').innerHTML = pl.rests.map((r, i) => {
+    const x = res && res[i];
+    const out = !x || !x.s ? '' : x.s === 'ok' ? '<span class="ok">✓ voll</span>' : `<span class="fail">${fmt(x.t)}</span>`;
+    const cls = i === curR ? 'cur' + (ph.k === 'hold' ? ' h' : '') : '';
+    return `<tr class="${cls}"><td>${i + 1}</td><td>${fmt(r)}</td><td>${fmt(pl.holds[i])}</td><td>${x && x.c != null ? fmt(x.c) + (x.n > 1 ? ' ×' + x.n : '') : ''}</td><td>${out}</td></tr>`;
+  }).join('');
+  const pr = prog();
+  $('hint').innerHTML = pr && !run ? `<div class="hint"><span>Zwei volle CO2-Sessions mit ${fmt(holdT())}. Bereit für ${fmt(pr)}.</span><button class="btn pri" data-a="prog">Auf ${fmt(pr)} erhöhen</button></div>` : '';
+  $('hist').innerHTML = p.hist.length ? `<div class="scroll"><table><thead><tr><th>Datum</th><th>Tabelle</th><th>Halten</th><th>Kontr.</th><th>Voll</th></tr></thead><tbody>${p.hist.slice(0, 8).map(x => `<tr><td>${dm(x.d)}</td><td>${x.type === 'o2' ? 'O2' : 'CO2'}</td><td>${fmt(x.hold)}</td><td>${x.cfirst ? fmt(x.cfirst) : ''}</td><td class="${x.done === x.total ? 'ok' : ''}">${x.done}/${x.total}</td></tr>`).join('')}</tbody></table></div>` : '<p class="empty">Noch keine Session. Nach der ersten steht sie hier.</p>';
+  const wb = p.walks.reduce((a, x) => Math.max(a, x.steps), 0);
+  $('walks').innerHTML = p.walks.length ? `<div class="facts" style="margin:0 0 10px"><div class="fact"><b>${wb}</b><span>Schritte Rekord</span></div><div class="fact"><b>${p.walks.length}</b><span>Durchgänge</span></div></div><div class="dlist">${p.walks.slice(0, 6).map(x => `<span>${dm(x.d)}: ${x.steps} Schritte, ${fmt(x.t)}</span>`).join('')}</div>` : '<p class="empty">Noch kein Durchgang. Starte links mit „Apnoe-Gehen“.</p>';
+}
+
+/* ---------- Erfolge (Erwachsene) ---------- */
+const LV = [{t: 120, n: 'AIDA 2', s: 'A2'}, {t: 165, n: 'AIDA 3', s: 'A3'}, {t: 210, n: 'AIDA 4', s: 'A4'}, {t: 240, n: 'Instructor', s: 'Instr.'}];
+const GROUPS = ['AIDA-Meilensteine', 'Zeiten', 'Dranbleiben', 'Technik'];
+const tNeed = t => s => s.pb && s.pb < t ? 'noch ' + fmt(t - s.pb) : '';
+const ACH = [
+  {id: 'a1', g: 0, big: 1, m: 'A1', n: 'AIDA 1', d: 'Für AIDA 1 gibt es keine Zeitvorgabe. Erste Session geschafft, der Einstieg steht.', ok: s => s.n >= 1},
+  {id: 'a2', g: 0, big: 1, m: 'A2', n: 'AIDA 2', d: '2:00 Statik, die Vorgabe für Level 2.', ok: s => s.pb >= 120, need: tNeed(120)},
+  {id: 'a3', g: 0, big: 1, m: 'A3', n: 'AIDA 3', d: '2:45 Statik, die Vorgabe für Level 3.', ok: s => s.pb >= 165, need: tNeed(165)},
+  {id: 'a4', g: 0, big: 1, m: 'A4', n: 'AIDA 4', d: '3:30 Statik, die Vorgabe für Level 4.', ok: s => s.pb >= 210, need: tNeed(210)},
+  {id: 'ai', g: 0, big: 1, ext: 1, m: 'AI', n: 'AIDA Instructor', d: '4:00 Statik, Vorgabe im Instructor-Kurs.', ok: s => s.pb >= 240, need: tNeed(240)},
+  {id: 't90', g: 1, m: '1:30', n: 'PADI Basic', d: '1:30, Vorgabe für den PADI Basic Freediver.', ok: s => s.pb >= 90, need: tNeed(90)},
+  {id: 't150', g: 1, m: '2:30', n: 'PADI Freediver', d: '2:30, Vorgabe für den PADI Freediver.', ok: s => s.pb >= 150, need: tNeed(150)},
+  {id: 't180', g: 1, m: '3:00', n: 'Drei Minuten', d: 'Die erste große runde Zahl.', ok: s => s.pb >= 180, need: tNeed(180)},
+  {id: 't270', g: 1, ext: 1, m: '4:30', n: 'Viereinhalb', d: '4:30 Bestzeit.', ok: s => s.pb >= 270, need: tNeed(270)},
+  {id: 't300', g: 1, ext: 1, m: '5:00', n: 'Fünf Minuten', d: 'Trocken ein richtig starkes Ergebnis.', ok: s => s.pb >= 300, need: tNeed(300)},
+  {id: 't360', g: 1, ext: 1, m: '6:00', n: 'Sechs Minuten', d: 'Bereich von Wettkampf-Freedivern.', ok: s => s.pb >= 360, need: tNeed(360)},
+  {id: 'g15', g: 1, m: '+15', n: 'Erster Sprung', d: '15 Sekunden mehr als beim ersten Test.', ok: s => s.gain >= 15, need: s => s.hasFirst && s.gain < 15 ? 'noch ' + fmt(15 - s.gain) : ''},
+  {id: 'g30', g: 1, m: '+30', n: 'Halbe Minute mehr', d: '30 Sekunden mehr als beim ersten Test.', ok: s => s.gain >= 30, need: s => s.hasFirst && s.gain < 30 ? 'noch ' + fmt(30 - s.gain) : ''},
+  {id: 'g60', g: 1, m: '+1:00', n: 'Eine Minute mehr', d: 'Eine ganze Minute mehr als beim ersten Test.', ok: s => s.gain >= 60, need: s => s.hasFirst && s.gain < 60 ? 'noch ' + fmt(60 - s.gain) : ''},
+  {id: 's3', g: 2, m: '3×', n: 'Hattrick', d: 'Drei Sessions geschafft.', ok: s => s.n >= 3, need: s => s.n < 3 ? 'noch ' + (3 - s.n) : ''},
+  {id: 's10', g: 2, m: '10×', n: 'Zehn Sessions', d: 'Zehn Tabellen im Verlauf.', ok: s => s.n >= 10, need: s => s.n < 10 ? 'noch ' + (10 - s.n) : ''},
+  {id: 's25', g: 2, m: '25×', n: 'Fünfundzwanzig', d: '25 Sessions. Das ist Routine.', ok: s => s.n >= 25, need: s => s.n < 25 ? 'noch ' + (25 - s.n) : ''},
+  {id: 's50', g: 2, ext: 1, m: '50×', n: 'Fünfzig', d: '50 Sessions.', ok: s => s.n >= 50, need: s => s.n < 50 ? 'noch ' + (50 - s.n) : ''},
+  {id: 'w3', g: 2, m: '3/7', n: 'Volle Woche', d: 'Drei Sessions innerhalb von sieben Tagen.', ok: s => s.w7 >= 3},
+  {id: 'k4', g: 2, m: '4W', n: 'Vier Wochen am Stück', d: 'In vier Wochen hintereinander trainiert.', ok: s => s.weeks >= 4, need: s => s.weeks ? s.weeks + ' von 4 Wochen' : ''},
+  {id: 'k8', g: 2, ext: 1, m: '8W', n: 'Zwei Monate dabei', d: 'In acht Wochen hintereinander trainiert.', ok: s => s.weeks >= 8, need: s => s.weeks ? s.weeks + ' von 8 Wochen' : ''},
+  {id: 'f1', g: 3, m: '✓', n: 'Alles gehalten', d: 'Eine Session mit allen Runden voll.', ok: s => s.perf >= 1},
+  {id: 'f5', g: 3, m: '5✓', n: 'Fünfmal sauber', d: 'Fünf Sessions mit allen Runden voll.', ok: s => s.perf >= 5, need: s => s.perf < 5 ? s.perf + ' von 5' : ''},
+  {id: 'o2', g: 3, m: 'O2', n: 'Sauerstoff-Profi', d: 'Eine O2-Tabelle mit allen Runden voll.', ok: s => s.o2full >= 1},
+  {id: 'up', g: 3, m: '↑', n: 'Stufe hoch', d: 'CO2-Haltezeit gegenüber der ersten Session erhöht.', ok: s => s.up},
+  {id: 'h90', g: 3, m: '1:30', n: 'Lange Tabelle', d: 'Volle CO2-Session mit 1:30 Haltezeit.', ok: s => s.fullHold >= 90},
+  {id: 'h120', g: 3, ext: 1, m: '2:00', n: 'Zwei-Minuten-Tabelle', d: 'Volle CO2-Session mit 2:00 Haltezeit.', ok: s => s.fullHold >= 120},
+  {id: 'c60', g: 3, m: 'K1', n: 'Ruhig bleiben', d: 'Erste Kontraktion erst nach 1:00.', ok: s => s.c >= 60},
+  {id: 'c90', g: 3, ext: 1, m: 'K2', n: 'Eisblock', d: 'Erste Kontraktion erst nach 1:30.', ok: s => s.c >= 90},
+  {id: 'aw50', g: 3, m: '50', n: 'Apnoe-Geher', d: '50 Schritte mit angehaltener Luft.', ok: s => s.walk >= 50, need: s => s.walk && s.walk < 50 ? 'noch ' + (50 - s.walk) + ' Schritte' : ''},
+  {id: 'aw100', g: 3, ext: 1, m: '100', n: 'Hundert Schritte', d: '100 Schritte mit angehaltener Luft.', ok: s => s.walk >= 100, need: s => s.walk && s.walk < 100 ? 'noch ' + (100 - s.walk) + ' Schritte' : ''}
+];
+const monday = d => { const x = new Date(day(d)); x.setUTCDate(x.getUTCDate() - ((x.getUTCDay() + 6) % 7)); return x.getTime(); };
+function stats(p) {
+  const asc = p.hist.slice().reverse(), cur0 = p.example ? 0 : p.cfg.max;
+  const pb = Math.max(0, cur0, ...p.maxHist.map(x => x.t));
+  const first = p.maxHist.length ? p.maxHist[0].t : cur0;
+  const perf = asc.filter(x => x.done === x.total), co2 = asc.filter(x => x.type !== 'o2'), ds = asc.map(x => day(x.d));
+  let w7 = 0; ds.forEach(t => { w7 = Math.max(w7, ds.filter(u => u >= t && u < t + 7 * 864e5).length); });
+  let runW = 0, weeks = 0, prev = null;
+  [...new Set(asc.map(x => monday(x.d)))].sort((a, b) => a - b).forEach(t => { runW = prev != null && Math.round((t - prev) / 864e5) === 7 ? runW + 1 : 1; weeks = Math.max(weeks, runW); prev = t; });
+  const rd = asc.reduce((a, x) => a + x.done, 0), rt = asc.reduce((a, x) => a + x.total, 0);
+  return {n: asc.length, pb, cur: cur0, gain: pb - first, hasFirst: !!first, perf: perf.length, o2full: perf.filter(x => x.type === 'o2').length,
+    fullHold: Math.max(0, ...perf.filter(x => x.type !== 'o2').map(x => x.hold)), up: co2.length > 1 && co2.some(x => x.hold > co2[0].hold),
+    c: Math.max(0, ...asc.map(x => x.cmax || 0)), w7, weeks, rate: rt ? Math.round(rd / rt * 100) : 0, walk: p.walks.reduce((a, x) => Math.max(a, x.steps), 0),
+    lastC: (asc.filter(x => x.cfirst).pop() || {}).cfirst || 0};
+}
+function renderAch() {
+  const p = P(), st = stats(p), pb = st.cur;
+  $('pbBig').textContent = pb ? fmt(pb) : '0:00';
+  const below = LV.filter(l => pb >= l.t).pop(), nx = LV.find(l => pb < l.t);
+  $('posTxt').textContent = !pb ? 'Noch keine Bestzeit. Miss sie im Reiter Training.' : (below ? 'Über ' + below.n + '.' : 'Noch unter AIDA 2.') + (nx ? ' Noch ' + fmt(nx.t - pb) + ' bis ' + nx.n + '.' : ' Alle AIDA-Stufen geschafft.');
+  const lo = 60, hi = Math.max(270, pb + 30), pc = v => Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100));
+  $('ladder').innerHTML = `<div class="lt"></div><div class="lf" style="width:${pc(pb)}%"></div>` +
+    LV.map((l, i) => `<div class="lm ${i % 2 ? 'dn' : 'up'} ${pb >= l.t ? 'done' : ''}" style="left:${pc(l.t)}%"><span>${l.n}<br>${fmt(l.t)}</span></div>`).join('') +
+    (pb ? `<div class="you" style="left:${pc(pb)}%" title="Du"></div>` : '');
+  const entries = p.maxHist.length + p.hist.length;
+  $('chartWrap').hidden = entries < 3; $('chartWait').hidden = entries >= 3;
+  $('chartWait').textContent = 'Der Graph erscheint ab dem dritten Eintrag. Noch ' + (3 - entries) + (3 - entries === 1 ? ' Eintrag' : ' Einträge') + ': jede Session und jede neue Bestzeit zählt.';
+  $('stats').innerHTML = [
+    [pb ? fmt(pb) : '0:00', 'Bestzeit'],
+    [(st.gain >= 0 ? '+' : '') + fmt(Math.abs(st.gain)), 'seit dem ersten Test'],
+    [st.n, st.n === 1 ? 'Session' : 'Sessions'],
+    [st.rate + ' %', 'Runden voll gehalten'],
+    [st.lastC ? fmt(st.lastC) : '0:00', 'erste Kontraktion zuletzt']
+  ].map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join('');
+  const got = ACH.filter(a => p.ach[a.id]).length;
+  $('achHead').textContent = 'Achievements ' + got + ' von ' + ACH.length;
+  $('achList').innerHTML = GROUPS.map((g, gi) => `<h3>${g}</h3><div class="achs">` + ACH.filter(a => a.g === gi).map(a => {
+    const d = p.ach[a.id], need = !d && a.need ? a.need(st) : '';
+    return `<div class="ach ${d ? 'got' : 'lock'} ${a.big ? 'big' : ''} ${newIds.has(a.id) ? 'new' : ''}"><div class="md">${a.m}</div><b>${a.n}${a.ext ? '<span class="tag">Erweitert</span>' : ''}</b><span>${a.d}</span><small>${d ? 'Geschafft am ' + dm(d) : need}</small></div>`;
+  }).join('') + '</div>').join('');
+  newIds.clear();
+  drawChart();
+}
+function drawChart() {
+  const fig = $('chart'), svg = $('chartSvg');
+  if (S.cur == null || P().kind || $('v-ach').hidden || $('chartWrap').hidden) return;
+  const W = fig.clientWidth, H = fig.clientHeight; if (!W) return;
+  const p = P(), narrow = W < 520, m = {l: 44, r: narrow ? 52 : 104, t: 18, b: 30};
+  const pbp = p.maxHist.map(x => ({x: day(x.d), y: x.t})).sort((a, b) => a.x - b.x);
+  const sp = p.hist.map(x => ({x: day(x.d), y: x.hold, f: x.done === x.total}));
+  const cp = p.hist.filter(x => x.cfirst).map(x => ({x: day(x.d), y: x.cfirst}));
+  const all = pbp.concat(sp, cp); if (!all.length) { svg.innerHTML = ''; return; }
+  let x0 = Math.min(...all.map(q => q.x)), x1 = Math.max(...all.map(q => q.x));
+  if (x1 - x0 < 2 * 864e5) { x0 -= 864e5; x1 += 864e5; }
+  const top = Math.max(...all.map(q => q.y)), nl = LV.find(l => l.t > top);
+  const yMax = Math.max(top, nl ? nl.t : 0) + 20, yMin = Math.max(0, Math.floor((Math.min(...all.map(q => q.y)) - 20) / 30) * 30);
+  const sx = x => m.l + (x - x0) / (x1 - x0) * (W - m.l - m.r), sy = y => H - m.b - (y - yMin) / (yMax - yMin) * (H - m.t - m.b);
+  const step = yMax - yMin > 300 ? 60 : 30;
+  let h = '';
+  for (let y = Math.ceil(yMin / step) * step; y <= yMax; y += step) h += `<line x1="${m.l}" x2="${W - m.r}" y1="${sy(y)}" y2="${sy(y)}" stroke="#1a2733"/><text x="${m.l - 8}" y="${sy(y) + 4}" text-anchor="end">${fmt(y)}</text>`;
+  LV.filter(l => l.t >= yMin && l.t <= yMax).forEach(l => { const done = top >= l.t; h += `<line x1="${m.l}" x2="${W - m.r}" y1="${sy(l.t)}" y2="${sy(l.t)}" stroke="${done ? '#e0473b' : '#5d6e7e'}" stroke-dasharray="6 5" stroke-width="1.5"/><text x="${W - m.r + 6}" y="${sy(l.t) + 4}" style="fill:${done ? '#ff7a6e' : '#98a7b5'}">${narrow ? l.s : l.n + ' ' + fmt(l.t)}</text>`; });
+  if (pbp.length) {
+    let d = `M${sx(pbp[0].x)},${sy(pbp[0].y)}`;
+    pbp.slice(1).forEach(q => { d += `H${sx(q.x)}V${sy(q.y)}`; });
+    d += `H${W - m.r}`;
+    h += `<path d="${d}" fill="none" stroke="#dff5e8" stroke-width="2.5" stroke-linejoin="round"/>`;
+    pbp.forEach(q => { h += `<circle cx="${sx(q.x)}" cy="${sy(q.y)}" r="4" fill="#dff5e8"/>`; });
+    const lp = pbp[pbp.length - 1];
+    h += `<text x="${sx(lp.x)}" y="${sy(lp.y) - 10}" text-anchor="${sx(lp.x) > W - m.r - 30 ? 'end' : 'middle'}" style="fill:#eef2f5;font-weight:500">${fmt(lp.y)}</text>`;
+  }
+  sp.forEach(q => { h += q.f ? `<circle cx="${sx(q.x)}" cy="${sy(q.y)}" r="5" fill="#e0473b"/>` : `<circle cx="${sx(q.x)}" cy="${sy(q.y)}" r="4.5" fill="#0e1720" stroke="#e0473b" stroke-width="2"/>`; });
+  cp.forEach(q => { const x = sx(q.x), y = sy(q.y); h += `<polygon points="${x},${y - 6} ${x + 5},${y} ${x},${y + 6} ${x - 5},${y}" fill="#6cb4f0"/>`; });
+  const dl = t => { const x = new Date(t); return String(x.getUTCDate()).padStart(2, '0') + '.' + String(x.getUTCMonth() + 1).padStart(2, '0') + '.'; };
+  const xt = narrow ? [x0, x1] : [x0, (x0 + x1) / 2, x1];
+  xt.forEach((t, i) => { h += `<text x="${sx(t)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : i === xt.length - 1 ? 'end' : 'middle'}">${dl(t)}</text>`; });
+  svg.innerHTML = h;
+}
+const chartRO = new ResizeObserver(drawChart); chartRO.observe($('chart'));
+
+/* ---------- Tauchspiel (Kinder) ---------- */
+let krun = null, ktm = null, wy = 92;
+const kToday = p => p.kid.dives.filter(x => x.d === today()).length;
+const setWhale = y => { wy = y; $('whale').setAttribute('transform', `translate(200 ${y.toFixed(1)})`); $('spout').style.display = y < 100 ? '' : 'none'; };
+function kStart() {
+  const p = P();
+  if (kToday(p) >= KMAX) return;
+  unlock(); krun = {ph: 'prep', t0: performance.now(), len: 5, ls: null};
+  say('Ganz ruhig einatmen', .9); tone(392, .6, .2);
+  clearInterval(ktm); ktm = setInterval(kTick, 100); wake(true); renderDive();
+}
+function kTick() {
+  if (!krun) return;
+  const e = (performance.now() - krun.t0) / 1000;
+  if (krun.ph === 'prep') {
+    const left = Math.ceil(krun.len - e);
+    if (left <= 0) { krun = {ph: 'dive', t0: performance.now()}; say('Abtauchen!', 1); tone(523, .3, .35); setTimeout(() => tone(659, .4, .35), 160); vib([150]); renderDive(); return; }
+    $('kbig').textContent = left; return;
+  }
+  if (krun.ph === 'dive') {
+    const s = Math.floor(e);
+    setWhale(92 + 196 * Math.min(e, KCAP) / KCAP);
+    $('kbig').textContent = s + (s === 1 ? ' Sekunde' : ' Sekunden'); $('depthTxt').textContent = Math.min(s, KCAP) + ' m';
+    if (s !== krun.ls) { krun.ls = s; if (s > 0 && s % 10 === 0) { tone(784, .15, .3); say(String(s), 1); } }
+    if (e >= KCAP) kSurface(true);
+    return;
+  }
+  if (krun.ph === 'rest') {
+    const k = Math.min(1, e / 2.5); setWhale(krun.from + (92 - krun.from) * (1 - (1 - k) ** 2));
+    const left = Math.ceil(KREST - e);
+    if (left <= 0) { krun = null; clearInterval(ktm); wake(false); quiet(); tone(523, .3, .25); renderDive(); return; }
+    $('ksub').textContent = 'Ausruhen, noch ' + fmt(left);
+  }
+}
+function kSurface(cap) {
+  const p = P(), s = Math.min(KCAP, Math.floor((performance.now() - krun.t0) / 1000)), before = snap(p);
+  p.kid.dives.unshift({d: today(), t: s}); p.kid.dives = p.kid.dives.slice(0, 200);
+  const rec = s > p.kid.best; if (rec) p.kid.best = s; save();
+  krun = {ph: 'rest', t0: performance.now(), from: wy, s, rec, cap};
+  say(cap ? 'Ganz unten! Super. Jetzt auftauchen und ausruhen.' : s + ' Sekunden. ' + (rec ? 'Neuer Rekord!' : 'Super gemacht!'), .95);
+  tone(659, .2, .35); setTimeout(() => tone(880, .3, .35), 180); vib([80, 60, 80]);
+  renderDive(); toast([...gainItems(p, before), ...check(p)]);
+}
+function renderDive() {
+  const p = P(), n = kToday(p);
+  if (!krun) {
+    setWhale(92); $('depthTxt').textContent = '0 m';
+    if (n >= KMAX) { $('kbig').textContent = 'Super getaucht!'; $('ksub').textContent = 'Für heute genug. Morgen geht es weiter.'; }
+    else { $('kbig').textContent = p.kid.best ? 'Rekord ' + p.kid.best + ' s' : 'Bereit?'; $('ksub').textContent = 'Luft anhalten, und der Wal taucht ab.'; }
+    $('kctrl').innerHTML = `<button class="btn pri big" data-a="kstart" ${n >= KMAX ? 'disabled' : ''}>Abtauchen</button>`;
+  } else if (krun.ph === 'prep') { $('ksub').textContent = 'Ganz ruhig einatmen'; $('kbig').textContent = '5'; $('kctrl').innerHTML = `<button class="btn big" data-a="kcancel">Abbrechen</button>`; }
+  else if (krun.ph === 'dive') { $('ksub').textContent = 'Tippen, wenn du Luft brauchst'; $('kctrl').innerHTML = `<button class="btn hot big" data-a="kup">Auftauchen</button>`; }
+  else { $('kbig').textContent = krun.s + ' Sekunden' + (krun.rec ? '!' : ''); $('ksub').textContent = 'Ausruhen'; $('kctrl').innerHTML = `<button class="btn big" disabled>Erst ausruhen</button>`; }
+  const ds = p.kid.dives;
+  $('kdives').innerHTML = `<div class="facts" style="margin:0 0 12px"><div class="fact"><b>${p.kid.best} s</b><span>Rekord</span></div><div class="fact"><b>${n} von ${KMAX}</b><span>heute getaucht</span></div></div>` +
+    (ds.length ? `<div class="dlist">${ds.slice(0, 8).map(x => `<span>${dm(x.d)}: ${x.t} s</span>`).join('')}</div>` : '<p class="empty">Noch kein Tauchgang. Der Wal wartet schon.</p>') + `<p class="note">Perlen: ${pearls(p)}. ${nextTxt(p, 'p')}</p>`;
+}
+{
+  let h = '';
+  for (let i = 0; i < 9; i++) h += `<circle class="bub" cx="${30 + i * 42}" cy="${350 - (i % 3) * 6}" r="${3 + (i * 7) % 6}" fill="none" stroke="#fff" stroke-width="2" style="animation-delay:${(i * 0.83).toFixed(2)}s"/>`;
+  $('bubs').innerHTML = h;
+}
+
+/* ---------- Sticker (Kinder) ---------- */
+const KACH = [
+  {id: 'kd1', c: '#ff6b6b', m: '1', n: 'Erster Tauchgang', d: 'Zum ersten Mal mit dem Wal abgetaucht.', ok: s => s.dives >= 1},
+  {id: 'kt10', c: '#ffbe0b', m: '10s', n: 'Zehn Sekunden', d: '10 Sekunden unter Wasser.', ok: s => s.best >= 10},
+  {id: 'kt20', c: '#2ec4b6', m: '20s', n: 'Zwanzig Sekunden', d: '20 Sekunden unter Wasser.', ok: s => s.best >= 20},
+  {id: 'kt30', c: '#8f6cf0', m: '30s', n: 'Dreißig Sekunden', d: '30 Sekunden unter Wasser.', ok: s => s.best >= 30},
+  {id: 'kt45', c: '#ff8fab', m: '45s', n: 'Ganz unten', d: 'Bis auf den Meeresgrund getaucht.', ok: s => s.best >= 45},
+  {id: 'kdd3', c: '#4f8ef0', m: '3', n: 'Drei Tauchtage', d: 'An drei Tagen getaucht.', ok: s => s.days >= 3},
+  {id: 'ks1', c: '#f3c74f', m: '★', n: 'Erster Stern', d: 'Eine ganze Einschlafübung gemacht.', ok: s => s.stars >= 1},
+  {id: 'ks5', c: '#ff9f1c', m: '5★', n: 'Fünf Sterne', d: 'Fünf Abende mit Einschlafübung.', ok: s => s.stars >= 5},
+  {id: 'ks10', c: '#2ec27e', m: '10★', n: 'Zehn Sterne', d: 'Zehn Abende mit Einschlafübung.', ok: s => s.stars >= 10},
+  {id: 'ks30', c: '#5b6ee1', m: '30★', n: 'Sternenhimmel', d: 'Dreißig Abende. Ein ganzer Himmel voll.', ok: s => s.stars >= 30},
+  {id: 'kex', c: '#ef476f', m: '4', n: 'Alle Übungen', d: 'Alle vier Einschlafübungen ausprobiert.', ok: s => s.tried >= 4}
+];
+const kstats = p => ({dives: p.kid.dives.length, best: p.kid.best, days: new Set(p.kid.dives.map(x => x.d)).size, stars: p.stars.length, tried: new Set(p.tried).size});
+const sticker = (c, m) => { let d = ''; for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2, r = i % 2 ? 44 : 50; d += (i ? 'L' : 'M') + (52 + r * Math.cos(a)).toFixed(1) + ' ' + (52 + r * Math.sin(a)).toFixed(1); } return `<svg viewBox="0 0 104 104" aria-hidden="true"><path d="${d}Z" fill="#fff"/><circle cx="52" cy="52" r="38" fill="${c}"/><circle cx="40" cy="38" r="10" fill="#fff" opacity=".25"/><text x="52" y="60" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="600" font-size="${m.length > 2 ? 22 : 28}" fill="#fff">${m}</text></svg>`; };
+function renderSticker() {
+  const p = P(), got = KACH.filter(a => p.ach[a.id]).length;
+  $('stkHead').textContent = 'Sticker ' + got + ' von ' + KACH.length;
+  $('stks').innerHTML = KACH.map(a => `<div class="stk ${p.ach[a.id] ? '' : 'lock'} ${newIds.has(a.id) ? 'new' : ''}">${sticker(a.c, a.m)}<b>${a.n}</b><span>${a.d}</span></div>`).join('');
+  newIds.clear();
+}
+
+/* ---------- Perlen, Sterne, Belohnungen, Familie ---------- */
+const pearlDays = p => new Set(p.kind ? p.kid.dives.map(x => x.d) : [...p.hist, ...p.walks, ...p.maxHist].map(x => x.d));
+const pearls = p => pearlDays(p).size;
+const starsN = p => new Set(p.stars).size;
+const snap = p => [pearls(p), starsN(p)];
+const wk0 = () => monday(today());
+const weekPearls = p => [...pearlDays(p)].filter(d => monday(d) === wk0()).length;
+const weekStars = p => [...new Set(p.stars)].filter(d => monday(d) === wk0()).length;
+const famMembers = () => S.people.filter(p => pearls(p) + starsN(p) > 0 || p.kind || !/^Person \d+$/.test(p.name));
+const teamWeek = () => famMembers().reduce((a, p) => a + weekPearls(p) + weekStars(p), 0);
+const SETS = {p: {key: 'rewards', seen: 'seen', unit: ['Perle', 'Perlen'], count: pearls}, n: {key: 'rewardsN', seen: 'seenN', unit: ['Stern', 'Sterne'], count: starsN}};
+function markSeen(p) {
+  const items = [];
+  Object.values(SETS).forEach(st => { const n = st.count(p); p[st.key].forEach(r => { if (n >= r.at && !p[st.seen].includes(r.at)) { p[st.seen].push(r.at); items.push({pre: 'Belohnung erreicht: ', n: r.t}); } }); });
+  return items;
+}
+function gainItems(p, before) {
+  const items = [];
+  if (p.kind) {
+    items.push(...markSeen(p));
+    const [np, ns] = snap(p);
+    if (np > before[0]) items.push({pre: '', n: '+1 Perle, jetzt ' + np});
+    if (ns > before[1]) items.push({pre: '', n: '+1 Stern, jetzt ' + ns});
+  }
+  const wk = String(wk0()), sum = teamWeek();
+  if (sum >= S.teamGoal && S.teamSeen !== wk) { S.teamSeen = wk; items.unshift({pre: '', n: 'Familienziel geschafft: ' + sum + ' diese Woche'}); }
+  save();
+  return items;
+}
+const starPts = (cx, cy, R, r) => Array.from({length: 10}, (_, i) => { const a = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r : R; return (cx + q * Math.cos(a)).toFixed(1) + ',' + (cy + q * Math.sin(a)).toFixed(1); }).join(' ');
+const chestSvg = open => open
+  ? `<svg viewBox="0 0 64 54" aria-hidden="true"><circle cx="32" cy="16" r="9" fill="#fff6f8"/><circle cx="29" cy="13" r="3" fill="#fff"/><path d="M6 24 L10 6 Q32 -2 54 6 L58 24 Z" fill="#e09a3a"/><rect x="6" y="24" width="52" height="26" rx="4" fill="#c9822b"/><rect x="6" y="30" width="52" height="5" fill="#ffd23f"/><rect x="28" y="28" width="8" height="11" rx="2" fill="#ffd23f"/></svg>`
+  : `<svg viewBox="0 0 64 54" aria-hidden="true"><path d="M6 26 Q32 6 58 26 Z" fill="#cfd9e2"/><rect x="6" y="24" width="52" height="26" rx="4" fill="#b9c7d3"/><rect x="6" y="30" width="52" height="5" fill="#dfe7ee"/><rect x="28" y="28" width="8" height="11" rx="2" fill="#dfe7ee"/></svg>`;
+const giftSvg = open => {
+  const [b, l, rb] = open ? ['#3b4fc4', '#5b6ee1', '#ffd23f'] : ['#b9c7d3', '#cfd9e2', '#dfe7ee'];
+  return `<svg viewBox="0 0 64 54" aria-hidden="true"><rect x="11" y="24" width="42" height="27" rx="3" fill="${b}"/><rect x="8" y="17" width="48" height="10" rx="3" fill="${l}"/><rect x="28" y="17" width="8" height="34" fill="${rb}"/><polygon points="${starPts(32, 9, 9, 4)}" fill="${rb}"/></svg>`;
+};
+function pathHTML(set, n, R) {
+  const k = R.length, cen = R.map((_, i) => (i + .5) / k * 100), lastC = cen[k - 1], stops = [0, ...R.map(r => r.at)], pos = [0, ...cen];
+  let x = lastC;
+  for (let i = 1; i < stops.length; i++) if (n < stops[i]) { x = pos[i - 1] + (pos[i] - pos[i - 1]) * (n - stops[i - 1]) / (stops[i] - stops[i - 1]); break; }
+  const u = SETS[set].unit[1];
+  return `<div class="ptrack" style="right:${100 - lastC}%"><i style="width:${x / lastC * 100}%"></i></div>` + R.map((r, i) => {
+    const ok = n >= r.at;
+    return `<div class="chest">${set === 'p' ? chestSvg(ok) : giftSvg(ok)}<b>${r.at} ${u}</b><span>${esc(r.t)}</span>${ok ? `<button class="give" data-a="give" data-s="${set}" data-i="${i}" aria-pressed="${!!r.got}">${r.got ? 'Übergeben ✓' : 'Übergeben?'}</button>` : ''}</div>`;
+  }).join('');
+}
+const nextTxt = (p, set) => { const st = SETS[set], n = st.count(p), nx = p[st.key].find(r => n < r.at); return nx ? 'Noch ' + (nx.at - n) + ' ' + (nx.at - n === 1 ? st.unit[0] : st.unit[1]) + ' bis: ' + nx.t + '.' : 'Alle Schätze geborgen!'; };
+function famHTML() {
+  const mem = famMembers(), sum = teamWeek(), goal = S.teamGoal;
+  return `<h2>Familien-Challenge</h2><p style="margin:0">Gemeinsames Ziel diese Woche: <b>${sum} von ${goal}</b> Perlen und Sterne${sum >= goal ? ', geschafft!' : ''}</p>` +
+    `<div class="team"><i style="width:${Math.min(100, sum / goal * 100)}%"></i></div>` +
+    `<div class="row"><button class="btn" data-a="goalm" aria-label="Ziel 5 weniger">−5</button><button class="btn" data-a="goalp" aria-label="Ziel 5 mehr">+5</button><span class="note" style="margin:0">Ziel anpassen</span></div>` +
+    (mem.length ? `<div class="fam">${mem.map(p => { const wp = weekPearls(p), ws = weekStars(p); return `<div class="frow"><b>${esc(p.name)}</b><span>${wp} ${wp === 1 ? 'Perle' : 'Perlen'}, ${ws} ${ws === 1 ? 'Stern' : 'Sterne'}</span><div class="bar"><i style="width:${Math.min(100, (wp + ws) / 14 * 100)}%"></i></div></div>`; }).join('')}</div>` : '<p class="empty" style="margin-top:12px">Sobald jemand übt, erscheint er hier.</p>') +
+    `<p class="note">Pro Tag gibt es eine Perle fürs Tauchen oder Training und einen Stern fürs Einschlafen. Gezählt wird auf diesem Gerät.</p>`;
+}
+function renderSchatz() {
+  const p = P(), [np, ns] = snap(p);
+  $('pearlBig').textContent = np; $('pearlTxt').textContent = (np === 1 ? 'Perle gesammelt. ' : 'Perlen gesammelt. ') + nextTxt(p, 'p');
+  $('starBig').textContent = ns; $('starTxt').textContent = (ns === 1 ? 'Stern gesammelt. ' : 'Sterne gesammelt. ') + nextTxt(p, 'n');
+  [['pathP', 'p', np, p.rewards], ['pathN', 'n', ns, p.rewardsN]].forEach(([id, set, n, R]) => { const el = $(id); el.style.gridTemplateColumns = `repeat(${R.length},minmax(0,1fr))`; el.innerHTML = pathHTML(set, n, R); });
+  const ed = (set, R) => R.map((r, i) => `<label>Bei ${r.at} ${SETS[set].unit[1]}<input type="text" data-rew="${set}:${i}" value="${esc(r.t)}" maxlength="60" style="text-align:left;font-size:16px"></label>`).join('');
+  $('rewEditP').innerHTML = ed('p', p.rewards); $('rewEditN').innerHTML = ed('n', p.rewardsN);
+  $('famKid').innerHTML = famHTML();
+  renderSticker();
+}
+
+/* ---------- Check & Toast ---------- */
+function check(p) {
+  const list = p.kind ? KACH : ACH, st = p.kind ? kstats(p) : stats(p), nw = list.filter(a => !p.ach[a.id] && a.ok(st));
+  nw.forEach(a => { p.ach[a.id] = today(); });
+  if (nw.length) save();
+  return nw;
+}
+let toastT = null;
+function toast(list) {
+  if (!list || !list.length) return;
+  list.forEach(a => { if (a.id) newIds.add(a.id); });
+  const t = $('toast'), f = list[0];
+  t.textContent = (f.pre != null ? f.pre : P().kind ? 'Neuer Sticker: ' : 'Freigeschaltet: ') + f.n + (list.length > 1 ? ' (und ' + (list.length - 1) + ' weitere)' : '');
+  t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 4500);
+  setTimeout(() => { beep(660, .12); setTimeout(() => beep(880, .12), 130); setTimeout(() => beep(1320, .25), 260); }, 700);
+  vib([60, 60, 60, 60, 150]);
+}
+
+/* ---------- Einschlafen ---------- */
+let nrun = null, ntm = null, ncl = null;
+const exOf = () => EX.find(e => e.id === P().ex) || EX[0];
+const setMoon = (scale, secs) => { const m = $('moon'); m.style.transition = `transform ${secs}s ease-in-out`; m.style.transform = `scale(${scale})`; };
+function nStart() {
+  unlock();
+  nrun = {ex: exOf(), end: performance.now() + P().dur * 60000, cyc: 0, ph: -1};
+  wake(true); nNext(); clearInterval(ncl); ncl = setInterval(nClock, 500); nClock(); renderNight();
+}
+function nNext() {
+  if (!nrun) return;
+  let i = nrun.ph;
+  do { i = (i + 1) % 4; if (i === 0) { nrun.cyc++; if (performance.now() >= nrun.end) { nDone(); return; } } } while (nrun.ex.p[i] === 0);
+  nrun.ph = i;
+  const d = nrun.ex.p[i], lab = nrun.ex.l[i];
+  $('nlabel').textContent = lab;
+  if (i === 0) { setMoon(1, d); tone(392, 1.2, .14); }
+  else if (i === 2) { setMoon(.55, d); tone(294, 1.4, .12); }
+  if (nrun.cyc <= 3) say(lab, .8);
+  ntm = setTimeout(nNext, d * 1000);
+}
+function nClock() { if (!nrun) return; const r = (nrun.end - performance.now()) / 1000; $('nsub').textContent = r > 0 ? 'noch ' + fmt(r) : 'letzter Atemzug'; }
+function nDone() {
+  clearTimeout(ntm); clearInterval(ncl);
+  const p = P(), d = today(), before = snap(p); if (!p.stars.includes(d)) p.stars.push(d);
+  if (!p.tried.includes(nrun.ex.id)) p.tried.push(nrun.ex.id); save();
+  nrun = null; wake(false); setMoon(.7, 2);
+  say('Gute Nacht', .8); tone(330, 2, .12); setTimeout(quiet, 2500);
+  renderNight(); $('nlabel').textContent = 'Gute Nacht'; $('nsub').textContent = 'Ein neuer Stern ist dazugekommen.';
+  toast([...gainItems(p, before), ...check(p)]);
+}
+function nStop() { clearTimeout(ntm); clearInterval(ncl); nrun = null; wake(false); quiet(); try { speechSynthesis.cancel(); } catch (e) {} setMoon(.7, 1); renderNight(); }
+function renderNight() {
+  const ex = exOf(), p = P();
+  if (!nrun) { $('nlabel').textContent = 'Bereit für die Nacht'; $('nsub').textContent = p.dur + ' Minuten ' + ex.name; }
+  $('nctrl').innerHTML = nrun ? `<button class="btn big" data-a="nstop">Beenden</button>` : `<button class="btn pri big" data-a="nstart">Los geht's</button>`;
+  $('exs').innerHTML = EX.map(e => `<button class="ex" data-a="ex" data-id="${e.id}" aria-pressed="${e.id === ex.id}" ${nrun ? 'disabled' : ''}><b>${e.name}</b><span>${e.desc}</span><small>${e.p.filter(x => x).length === 4 ? 'Je ' + e.p[0] + ' Sekunden' : e.p[0] + ' Sek. ein' + (e.p[1] ? ', ' + e.p[1] + ' halten' : '') + ', ' + e.p[2] + ' aus'}</small></button>`).join('');
+  $('durs').innerHTML = DURS.map(d => `<button class="btn d" data-a="dur" data-d="${d}" aria-pressed="${d === p.dur}" ${nrun ? 'disabled' : ''}>${d} Min.</button>`).join('');
+  const n = p.stars.length;
+  $('starLog').innerHTML = n ? `<div class="starrow" aria-label="${n} Sterne">${'★'.repeat(Math.min(n, 40))}</div><p class="note">${n} ${n === 1 ? 'Abend' : 'Abende'}${p.stars.includes(today()) ? ', heute schon geschafft' : ''}</p>` : '<p class="empty">Noch keine Sterne. Der erste kommt nach der ersten ganzen Übung.</p>' + (p.kind ? `<p class="note">${nextTxt(p, 'n')}</p>` : '');
+}
+{
+  let s = 7, h = '';
+  const r = () => (s = s * 16807 % 2147483647) / 2147483647;
+  for (let i = 0; i < 46; i++) { const x = r() * 100, y = r() * 100, z = .3 + r() * 1.1; if (Math.hypot(x - 50, y - 50) > 36) h += `<circle cx="${x.toFixed(1)}%" cy="${y.toFixed(1)}%" r="${z.toFixed(2)}" fill="#fff" opacity="${(.4 + r() * .6).toFixed(2)}"/>`; }
+  $('starsSvg').innerHTML = h;
+}
+
+/* ---------- Zifferblatt ---------- */
+{
+  let b = '', ix = '';
+  for (let i = 0; i < 60; i++) {
+    const a = i * 6;
+    if (i === 0) b += `<polygon points="150,22 141,9 159,9" fill="#dff5e8" stroke="none"/><circle cx="150" cy="14" r="2.5" fill="#9fb3a8" stroke="none"/>`;
+    else if (i < 15) b += `<line x1="150" y1="${i % 5 ? 9 : 8}" x2="150" y2="${i % 5 ? 16 : 24}" stroke-width="${i % 5 ? 1.2 : 2.6}" transform="rotate(${a} 150 150)"/>`;
+    else if (i % 10 === 0) b += `<text x="150" y="23" text-anchor="middle" font-family="Jost,sans-serif" font-size="14" font-weight="500" stroke="none" transform="rotate(${a} 150 150)">${i}</text>`;
+    else if (i % 5 === 0) b += `<rect x="147.5" y="9" width="5" height="14" rx="1" stroke="none" transform="rotate(${a} 150 150)"/>`;
+  }
+  for (let i = 0; i < 12; i++) {
+    const a = i * 30;
+    if (i === 0) ix += `<rect x="139" y="36" width="9" height="22" rx="2" fill="#dff5e8" stroke="#aab4be"/><rect x="152" y="36" width="9" height="22" rx="2" fill="#dff5e8" stroke="#aab4be"/>`;
+    else if (i % 3 === 0) ix += `<rect x="145" y="36" width="10" height="24" rx="2" fill="#dff5e8" stroke="#aab4be" transform="rotate(${a} 150 150)"/>`;
+    else ix += `<circle cx="150" cy="44" r="6" fill="#dff5e8" stroke="#aab4be" transform="rotate(${a} 150 150)"/>`;
+  }
+  $('bezel').innerHTML = b; $('idx').innerHTML = ix;
+  $('prog').style.strokeDasharray = C;
+}
+
+/* ---------- Profile, Reiter, Ablauf ---------- */
+const TABS = p => p.kind ? [['dive', 'Tauchspiel'], ['night', 'Einschlafen'], ['schatz', 'Schatzkiste']] : [['train', 'Training'], ['ach', 'Erfolge'], ['night', 'Einschlafen']];
+function fixTab(p) { const ids = TABS(p).map(t => t[0]); if (!ids.includes(p.tab)) p.tab = ids[0]; }
+function selectPerson(i) { S.cur = i; cfg = P().cfg; last = null; showPicker = false; renaming = false; fixTab(P()); save(); render(); }
+function renderPicker() {
+  $('people').innerHTML = S.people.map((p, i) => {
+    const bits = [];
+    if (p.kind) { if (p.kid.best) bits.push('Rekord ' + p.kid.best + ' s'); }
+    else { if (!p.example || p.hist.length) bits.push('Bestzeit ' + fmt(p.cfg.max)); if (p.hist.length) bits.push(p.hist.length + (p.hist.length === 1 ? ' Session' : ' Sessions')); }
+    if (p.stars.length) bits.push(p.stars.length + ' ★');
+    if (pearls(p)) bits.push(pearls(p) + (pearls(p) === 1 ? ' Perle' : ' Perlen'));
+    return `<button class="card ${i === S.cur ? 'on' : ''}" data-a="pick" data-i="${i}"><i>${p.kind ? 'Kind' : 'Erwachsen'}</i><b>${esc(p.name)}</b><span>${bits.length ? bits.join(', ') : 'Noch leer'}</span></button>`;
+  }).join('');
+  $('famPick').innerHTML = famHTML();
+}
+function render() {
+  const busy = !!(run || nrun || krun), pick = showPicker || S.cur == null;
+  const p = pick ? null : P();
+  if (p) fixTab(p);
+  document.body.className = (p && p.kind ? 'kid' : 'adult') + (p && p.tab === 'night' ? ' night' : '');
+  $('picker').hidden = !pick; $('main').hidden = pick;
+  $('whoBtn').textContent = S.cur == null ? 'Person wählen' : P().name;
+  $('whoBtn').disabled = busy;
+  $('renBtn').hidden = S.cur == null || pick || renaming;
+  $('renForm').hidden = !renaming;
+  $('clearBtn').textContent = clearArm ? 'Wirklich alle Daten löschen?' : 'Profil leeren';
+  if (renaming) $('kindSeg').innerHTML = [[0, 'Erwachsen'], [1, 'Kind']].map(([v, l]) => `<button type="button" class="btn" data-a="kind" data-v="${v}" aria-pressed="${!!P().kind === !!v}">${l}</button>`).join('');
+  if (pick) { $('title').textContent = 'Atemtraining'; $('blind').hidden = true; renderPicker(); return; }
+  $('tabs').innerHTML = TABS(p).map(([id, l]) => `<button role="tab" data-a="tab" data-t="${id}" aria-selected="${p.tab === id}" ${busy && p.tab !== id ? 'disabled' : ''}>${l}</button>`).join('');
+  ['train', 'ach', 'dive', 'schatz', 'night'].forEach(t => { $('v-' + t).hidden = p.tab !== t; });
+  $('title').textContent = {train: 'Training', ach: 'Erfolge', dive: 'Tauchspiel', schatz: 'Schatzkiste', night: 'Einschlafen'}[p.tab];
+  $('blindChip').hidden = !!p.kind;
+  if (p.tab !== 'train') $('blind').hidden = true;
+  ({train: renderTrain, ach: renderAch, dive: renderDive, schatz: renderSchatz, night: renderNight})[p.tab]();
+}
+
+const acts = {
+  start: () => startSession(), test: startTest, walk: startWalk, stop,
+  skip: () => next(),
+  pause: () => { if (run.paused) { run.t0 += performance.now() - run.pausedAt; run.paused = false; } else { run.paused = true; run.pausedAt = performance.now(); } render(); },
+  contr: () => { const ph = cur(); if (run && run.mode === 'session' && ph && ph.k === 'hold') { const x = run.res[ph.r]; if (x.c == null) x.c = el(); x.n++; vib(40); tone(330, .08, .2); render(); } },
+  air: () => {
+    const ph = cur(); if (!isHold(ph)) return;
+    const e = el();
+    if (run.mode === 'session') { run.res[ph.r].s = 'early'; run.res[ph.r].t = e; next(); return; }
+    run.last = e; run.wait = true; clearInterval(tm); beep(440, .3);
+    if (run.mode === 'test') { run.tries.push(e); run.best = Math.max(run.best, e); say('Gut. Erholungsatmung.'); }
+    else say('Gut. Wie viele Schritte?');
+    render(); if (run.mode === 'walk') setTimeout(() => { const s = $('steps'); if (s) s.focus(); }, 50);
+  },
+  take: () => { const before = snap(P()); cfg.max = Math.round(run.best); cfg.hold = null; P().example = false; recordMax(cfg.max); clearInterval(tm); run = null; wake(false); save(); render(); toast([...gainItems(P(), before), ...check(P())]); setTimeout(quiet, 1500); },
+  again: () => { run.wait = false; run.phases.push({k: 'rest', t: 240}, {k: 'test', up: true}); next(); loop(); },
+  walkSave: () => { const before = snap(P()), v = Math.round(+($('steps').value || 0)); if (v > 0) { P().walks.unshift({d: today(), t: Math.round(run.last), steps: Math.min(999, v)}); P().walks = P().walks.slice(0, 200); save(); } clearInterval(tm); run = null; wake(false); quiet(); render(); toast([...gainItems(P(), before), ...check(P())]); },
+  give: b => { const r = P()[SETS[b.dataset.s].key][+b.dataset.i]; r.got = !r.got; save(); renderSchatz(); },
+  goalm: () => { S.teamGoal = Math.max(5, S.teamGoal - 5); save(); render(); },
+  goalp: () => { S.teamGoal = Math.min(200, S.teamGoal + 5); save(); render(); },
+  m5: () => setMax(cfg.max - 5), p5: () => setMax(cfg.max + 5),
+  prog: () => { const pr = prog(); if (pr) { cfg.hold = pr; save(); render(); } },
+  reset: () => { cfg.hold = null; save(); render(); },
+  mode: b => { P().mode = b.dataset.k; last = null; save(); render(); },
+  todayGo: b => { const k = b.dataset.k; if (k === 'test') startTest(); else { P().mode = k; save(); startSession(k); } },
+  blindShow: () => { hideBlind = false; render(); },
+  blindHide: () => { hideBlind = true; render(); },
+  nstart: nStart, nstop: nStop,
+  ex: b => { P().ex = b.dataset.id; save(); renderNight(); },
+  dur: b => { P().dur = +b.dataset.d; save(); renderNight(); },
+  kstart: kStart, kup: () => { if (krun && krun.ph === 'dive') kSurface(false); },
+  kcancel: () => { krun = null; clearInterval(ktm); wake(false); quiet(); renderDive(); },
+  tab: b => { P().tab = b.dataset.t; save(); render(); },
+  people: () => { showPicker = !showPicker || S.cur == null; renaming = false; render(); },
+  pick: b => selectPerson(+b.dataset.i),
+  rename: () => { renaming = true; clearArm = false; render(); $('renIn').value = P().name; $('renIn').focus(); },
+  renCancel: () => { renaming = false; clearArm = false; render(); },
+  kind: b => { P().kind = b.dataset.v === '1'; fixTab(P()); save(); render(); },
+  clear: () => {
+    if (!clearArm) { clearArm = true; render(); setTimeout(() => { clearArm = false; render(); }, 5000); return; }
+    const p = P(); S.people[S.cur] = Object.assign(blankP(S.cur), {name: p.name, kind: p.kind}); fixTab(P()); cfg = P().cfg; last = null; clearArm = false; renaming = false; save(); render();
+  },
+  bcopy: () => {
+    let code = ''; try { code = btoa(unescape(encodeURIComponent(JSON.stringify(S)))); } catch (e) {}
+    const o = $('bout'); o.hidden = false; o.value = code; o.select();
+    try { navigator.clipboard.writeText(code).then(() => { $('bmsg').textContent = 'Kopiert. Speicher den Code an einem sicheren Ort.'; }, () => { $('bmsg').textContent = 'Kopieren ging nicht automatisch. Markier den Code oben und kopier ihn von Hand.'; }); } catch (e) { $('bmsg').textContent = 'Markier den Code oben und kopier ihn von Hand.'; }
+  },
+  bload: () => {
+    let data = null; try { data = JSON.parse(decodeURIComponent(escape(atob($('bin').value.trim())))); } catch (e) {}
+    if (!data || !Array.isArray(data.people)) { $('bmsg').textContent = 'Der Code ist nicht gültig. Bitte vollständig einfügen.'; return; }
+    if (!loadArm) { loadArm = true; $('bloadBtn').textContent = 'Ersetzt alle Profile hier. Nochmal tippen'; setTimeout(() => { loadArm = false; $('bloadBtn').textContent = 'Code einlesen'; }, 6000); return; }
+    try { localStorage.setItem('atem-v2', JSON.stringify(data)); } catch (e) {}
+    $('bmsg').textContent = 'Eingelesen. Die Seite lädt neu.'; setTimeout(() => location.reload(), 600);
+  },
+  soundtest: () => { unlock(); beep(660, .25); setTimeout(() => beep(880, .25), 300); say('Ton funktioniert'); setTimeout(() => { if (!run && !nrun && !krun) quiet(); }, 2500); }
+};
+document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (b && !b.disabled && acts[b.dataset.a]) acts[b.dataset.a](b); });
+$('renForm').addEventListener('submit', e => { e.preventDefault(); const v = $('renIn').value.trim(); if (v) { P().name = v.slice(0, 24); save(); } renaming = false; clearArm = false; render(); });
+$('max').addEventListener('change', e => setMax(parse(e.target.value)));
+$('max').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'steps') acts.walkSave(); });
+const lim = {pct: [30, 80], start: [30, 240], step: [0, 60], min: [5, 120], rounds: [3, 12], o2rest: [60, 240]};
+Object.keys(lim).forEach(k => {
+  const i = $('c-' + k);
+  i.addEventListener('change', () => { const v = Math.round(+i.value); if (isFinite(v) && i.value !== '') { cfg[k] = Math.min(lim[k][1], Math.max(lim[k][0], v)); if (k === 'pct') cfg.hold = null; } i.value = cfg[k]; save(); render(); });
+});
+[['sound', 't-sound'], ['voice', 't-voice'], ['vib', 't-vib'], ['blind', 't-blind']].forEach(([k, id]) => { const i = $(id); i.checked = !!S.set[k]; i.addEventListener('change', () => { S.set[k] = i.checked; if (k === 'blind') hideBlind = false; save(); render(); }); });
+
+/* Augen-zu: Tippen = Kontraktion, gedrückt halten = Luft geholt */
+{
+  const bl = $('blind'); let pt = null, long = false;
+  bl.addEventListener('pointerdown', e => {
+    if (e.target.closest('#bClose') || !run || !isHold(cur())) return;
+    long = false; clearTimeout(pt);
+    pt = setTimeout(() => { long = true; pt = null; vib([80, 60, 80]); acts.air(); }, 650);
+  });
+  const up = e => { if (!pt) return; clearTimeout(pt); pt = null; if (!long && run && run.mode === 'session' && cur() && cur().k === 'hold') acts.contr(); };
+  bl.addEventListener('pointerup', up);
+  bl.addEventListener('pointercancel', () => { clearTimeout(pt); pt = null; });
+  bl.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+try { speechSynthesis.getVoices(); } catch (e) {}
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+S.people.forEach(p => { check(p); markSeen(p); });
+if (S.teamSeen === '' && teamWeek() >= S.teamGoal) S.teamSeen = String(wk0());
+document.addEventListener('change', e => { const v = e.target.dataset && e.target.dataset.rew; if (v == null || S.cur == null) return; const [set, i] = v.split(':'), key = SETS[set].key, r = P()[key][+i]; r.t = e.target.value.trim() || (set === 'p' ? defRewards() : defRewardsN())[+i].t; save(); renderSchatz(); });
+save();
+render();
+}
+</script>
+</body>
+</html>
