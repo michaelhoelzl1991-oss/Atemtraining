@@ -271,6 +271,7 @@ body.adult .team i{background:linear-gradient(90deg,#5d6b78,#dff5e8)}
               <circle cx="150" cy="150" r="120" fill="#c8cfd6"/>
               <circle cx="150" cy="150" r="118" fill="url(#gDial)"/>
               <g id="idx"></g>
+              <circle id="gd" cx="150" cy="150" r="76" fill="rgba(159,227,207,.07)" stroke="rgba(159,227,207,.4)" stroke-width="1.5" opacity="0"/>
               <circle cx="150" cy="150" r="86" fill="none" stroke="#16222d" stroke-width="5"/>
               <circle id="prog" cx="150" cy="150" r="86" fill="none" style="stroke:var(--c)" stroke-width="5" stroke-linecap="round" transform="rotate(-90 150 150)"/>
               <g id="pip"><polygon points="150,72 144,60 156,60" style="fill:var(--c)"/></g>
@@ -283,7 +284,7 @@ body.adult .team i{background:linear-gradient(90deg,#5d6b78,#dff5e8)}
             </div>
           </div>
           <div class="ctrl" id="ctrl"></div>
-          <p class="warn">Nur im Liegen an Land. Nie im Wasser, nie in der Badewanne.</p>
+          <p class="warn">Nur an Land, im Liegen oder Sitzen. Nie im Wasser, nie in der Badewanne.</p>
         </section>
         <section class="right">
           <div class="panel">
@@ -298,6 +299,11 @@ body.adult .team i{background:linear-gradient(90deg,#5d6b78,#dff5e8)}
                 <button class="btn" type="button" data-a="p5" aria-label="5 Sekunden mehr">+5</button>
               </div>
               <p class="note" id="exnote">Beispielwert. Trag die Zeit ein oder miss sie mit „Bestzeit messen“.</p>
+              <div class="row" style="margin-top:14px">
+                <label for="pulse">Ruhepuls vor dem Start (optional, Schläge pro Minute)</label>
+                <input type="number" id="pulse" inputmode="numeric" min="30" max="140" placeholder="60">
+                <span class="note" style="margin:0" id="pulseNote">1 Minute ruhig liegen, dann 30 Sekunden zählen und verdoppeln.</span>
+              </div>
               <div class="facts" id="facts"></div>
               <details>
                 <summary>Tabelle anpassen</summary>
@@ -308,7 +314,12 @@ body.adult .team i{background:linear-gradient(90deg,#5d6b78,#dff5e8)}
                   <label>CO2: kürzeste Pause (Sek.)<input type="number" id="c-min" min="5" max="120" step="5"></label>
                   <label>O2: Pause (Sek.)<input type="number" id="c-o2rest" min="60" max="240" step="15"></label>
                   <label>Runden<input type="number" id="c-rounds" min="3" max="12" step="1"></label>
+                  <label>Surf: Belastung<input type="text" id="c-surfEx" maxlength="30" style="text-align:left;font-size:16px"></label>
+                  <label>Surf: Haltezeit (Sek.)<input type="number" id="c-surfHold" min="10" max="60" step="5"></label>
+                  <label>Surf: Erholung (Sek.)<input type="number" id="c-surfRest" min="30" max="240" step="15"></label>
+                  <label>Surf: Runden<input type="number" id="c-surfRounds" min="3" max="10" step="1"></label>
                 </div>
+                <label class="chip" style="margin-top:12px;justify-content:flex-start;width:max-content;max-width:100%"><input type="checkbox" id="c-guide"> Atemführung im Ring (4 Sek. ein, 8 Sek. aus)</label>
               </details>
             </fieldset>
           </div>
@@ -324,6 +335,22 @@ body.adult .team i{background:linear-gradient(90deg,#5d6b78,#dff5e8)}
             <div id="hint"></div>
             <div id="hist"></div>
             <p class="note">Regel: Zwei CO2-Sessions hintereinander alle Runden voll, dann Haltezeit +5 Sekunden.</p>
+          </div>
+          <div class="panel">
+            <h2>Pool-Logbuch</h2>
+            <div class="row">
+              <label for="poolK">Was hast du im Wasser gemacht?</label>
+              <select id="poolK" class="btn" style="flex:1 1 12em;text-align:left">
+                <option value="sta">Statik (Minuten:Sekunden)</option>
+                <option value="dyn">Strecke mit Flossen (Meter)</option>
+                <option value="dnf">Strecke ohne Flossen (Meter)</option>
+                <option value="cwt">Tiefe (Meter)</option>
+              </select>
+              <input type="text" id="poolV" inputmode="decimal" placeholder="40" aria-label="Wert">
+            </div>
+            <label class="chip" style="margin-top:12px;justify-content:flex-start;width:max-content;max-width:100%"><input type="checkbox" id="poolB"> Mit Buddy oder Instructor, der mich beobachtet hat</label>
+            <div class="row" style="margin-top:12px"><button class="btn pri" data-a="poolSave">Eintragen</button><span class="note" style="margin:0" id="poolMsg"></span></div>
+            <div id="pool" style="margin-top:14px"></div>
           </div>
           <div class="panel">
             <h2>Apnoe-Gehen</h2>
@@ -346,6 +373,7 @@ body.adult .team i{background:linear-gradient(90deg,#5d6b78,#dff5e8)}
           <p class="note">Weiße Linie: Bestzeit. Rote Punkte: Haltezeit der Tabellen, gefüllt heißt alle Runden voll. Blaue Rauten: erste Kontraktion im Schnitt. Gestrichelt: AIDA-Stufen.</p></div>
         <p class="empty" id="chartWait"></p>
         <div class="facts" id="stats"></div>
+        <p class="note" id="hrNote"></p>
       </div>
       <div class="panel" style="margin-top:18px">
         <h2 id="achHead">Achievements</h2>
@@ -489,10 +517,10 @@ const EX = [
 ];
 const DURS = [3, 5, 8];
 const KCAP = 45, KREST = 60, KMAX = 5;
-const blankCfg = () => ({max: 120, pct: 50, start: 120, step: 15, min: 30, rounds: 8, hold: null, o2rest: 120});
+const blankCfg = () => ({max: 120, pct: 50, start: 120, step: 15, min: 30, rounds: 8, hold: null, o2rest: 120, surfHold: 20, surfRest: 90, surfRounds: 6, surfEx: '15 Burpees', guide: true});
 const defRewards = () => [{at: 10, t: 'Ein Tauchring-Set für den Pool', got: false}, {at: 20, t: 'Eine Taucherbrille', got: false}, {at: 50, t: 'Ein Ausflug ins Aquarium oder Erlebnisbad', got: false}, {at: 100, t: 'Flossen', got: false}];
 const defRewardsN = () => [{at: 10, t: 'Ein Gute-Nacht-Buch zum Vorlesen', got: false}, {at: 20, t: 'Leuchtsterne für die Zimmerdecke', got: false}, {at: 50, t: 'Ein Sternenhimmel-Projektor als Nachtlicht', got: false}];
-const blankP = i => ({name: 'Person ' + (i + 1), kind: false, tab: 'train', mode: 'co2', cfg: blankCfg(), hist: [], example: true, stars: [], tried: [], ex: 'ballon', dur: 5, maxHist: [], ach: {}, walks: [], kid: {best: 0, dives: []}, rewards: defRewards(), rewardsN: defRewardsN(), seen: [], seenN: [], rv: 2});
+const blankP = i => ({name: 'Person ' + (i + 1), kind: false, tab: 'train', mode: 'co2', cfg: blankCfg(), hist: [], example: true, stars: [], tried: [], ex: 'ballon', dur: 5, maxHist: [], ach: {}, walks: [], pool: [], pulse: null, kid: {best: 0, dives: []}, rewards: defRewards(), rewardsN: defRewardsN(), seen: [], seenN: [], rv: 2});
 
 let S = {people: [], cur: null, teamGoal: 20, teamSeen: '', set: {sound: true, voice: true, vib: true, blind: false}};
 try {
@@ -547,16 +575,19 @@ const holdT = () => cfg.hold || r5(cfg.max * cfg.pct / 100);
 const co2Rests = () => Array.from({length: cfg.rounds}, (_, i) => Math.max(cfg.min, cfg.start - i * cfg.step));
 function planOf(type) {
   const n = cfg.rounds;
+  if (type === 'surf') { const m = cfg.surfRounds; return {type: 'surf', rests: Array(m).fill(cfg.surfRest), holds: Array(m).fill(cfg.surfHold)}; }
   if (type === 'o2') {
     const top = r5(cfg.max * .8), base = r5(cfg.max * .5), st = Math.max(5, r5((top - base) / Math.max(1, n - 1)) || 5);
     return {type: 'o2', rests: Array(n).fill(cfg.o2rest), holds: Array.from({length: n}, (_, i) => Math.min(top, base + i * st))};
   }
   return {type: 'co2', rests: co2Rests(), holds: Array(n).fill(holdT())};
 }
-const dur = pl => pl.rests.reduce((a, b) => a + b, 0) + pl.holds.reduce((a, b) => a + b, 0);
-const co2Hist = () => P().hist.filter(x => x.type !== 'o2');
+const dur = pl => pl.rests.reduce((a, b) => a + b, 0) + pl.holds.reduce((a, b) => a + b, 0) + (pl.type === 'surf' ? 45 * pl.holds.length : 0);
+const isCO2 = x => x.type !== 'o2' && x.type !== 'surf';
+const co2Hist = () => P().hist.filter(isCO2);
 const prog = () => { const h0 = co2Hist(); if (h0.length < 2) return null; const [a, b] = h0, h = holdT(); return (a.hold === h && b.hold === h && a.done === a.total && b.done === b.total) ? h + 5 : null; };
-const NAMES = {breathe: 'Atmen', hold: 'Halten', prep: 'Ruhig atmen', rest: 'Pause', test: 'Halten', walk: 'Gehen'};
+const NAMES = {breathe: 'Atmen', hold: 'Halten', prep: 'Ruhig atmen', rest: 'Pause', test: 'Halten', walk: 'Gehen', work: 'Belastung'};
+const TYPEL = {co2: 'CO2', o2: 'O2', surf: 'Surf'};
 const cur = () => run && run.phases[run.i];
 const el = () => ((run.paused ? run.pausedAt : performance.now()) - run.t0) / 1000;
 const isHold = ph => ph && (ph.k === 'hold' || ph.k === 'test' || ph.k === 'walk');
@@ -567,6 +598,7 @@ function cue(ph) {
   else if (ph.k === 'walk') { say('Luft anhalten und losgehen'); beep(740, .5); vib([200, 100, 200]); }
   else if (ph.k === 'prep') say(run.mode === 'walk' ? 'Eine Minute ruhig atmen.' : 'Zwei Minuten ruhig atmen. Lang ausatmen.');
   else if (ph.k === 'rest') say('Pause. Ruhig atmen.');
+  else if (ph.k === 'work') { say(cfg.surfEx + '. Los!'); beep(660, .2); setTimeout(() => beep(880, .3), 200); vib([100, 50, 100]); }
 }
 function secCue(ph, s) {
   if (s === lastSec) return; lastSec = s;
@@ -599,7 +631,8 @@ const loop = () => { clearInterval(tm); tm = setInterval(tick, 100); };
 function begin(r) { unlock(); last = null; hideBlind = false; run = r; next(); loop(); wake(true); }
 function startSession(type) {
   const pl = planOf(type || P().mode), p = [];
-  pl.rests.forEach((r, i) => { p.push({k: 'breathe', t: r, r: i}); p.push({k: 'hold', t: pl.holds[i], r: i}); });
+  if (pl.type === 'surf') pl.rests.forEach((r, i) => { p.push({k: 'work', up: true, r: i}); p.push({k: 'hold', t: pl.holds[i], r: i}); p.push({k: 'breathe', t: r, r: i}); });
+  else pl.rests.forEach((r, i) => { p.push({k: 'breathe', t: r, r: i}); p.push({k: 'hold', t: pl.holds[i], r: i}); });
   begin({mode: 'session', type: pl.type, pl, phases: p, i: -1, res: pl.holds.map(() => ({s: '', c: null, n: 0, t: null}))});
 }
 const startTest = () => begin({mode: 'test', phases: [{k: 'prep', t: 120}, {k: 'test', up: true}], i: -1, best: 0, tries: []});
@@ -608,9 +641,9 @@ function logSession() {
   const res = run.res, done = res.filter(x => x.s === 'ok').length, tried = res.filter(x => x.s).length;
   const firsts = res.filter(x => x.c != null).map(x => x.c);
   if (tried) {
-    P().hist.unshift({d: today(), type: run.type, max: cfg.max, hold: Math.max(...run.pl.holds), done, total: res.length,
+    P().hist.unshift({d: today(), type: run.type, hr: P().pulse || 0, max: cfg.max, hold: Math.max(...run.pl.holds), done, total: res.length,
       cmax: Math.round(Math.max(0, ...firsts)), cfirst: firsts.length ? Math.round(firsts.reduce((a, b) => a + b, 0) / firsts.length) : 0, ccount: res.reduce((a, x) => a + x.n, 0)});
-    P().hist = P().hist.slice(0, 300); save();
+    P().hist = P().hist.slice(0, 300); P().pulse = null; save();
   }
   return done;
 }
@@ -630,7 +663,8 @@ function stop() {
   try { speechSynthesis.cancel(); } catch (e) {}
   render(); toast([...gainItems(P(), before), ...check(P())]);
 }
-function recordMax(t) { const h = P().maxHist, d = today(); if (h.length && h[h.length - 1].d === d) h[h.length - 1].t = t; else h.push({d, t}); }
+function recordMax(t) { const h = P().maxHist, d = today(), hr = P().pulse || 0; if (h.length && h[h.length - 1].d === d) { h[h.length - 1].t = t; if (hr) h[h.length - 1].hr = hr; } else h.push({d, t, hr}); }
+const poolBest = p => p.pool.reduce((a, x) => { a[x.k] = Math.max(a[x.k] || 0, x.v); return a; }, {});
 function setMax(v) {
   if (!isFinite(v)) { render(); return; }
   cfg.max = Math.min(600, Math.max(20, Math.round(v))); cfg.hold = null; P().example = false; recordMax(cfg.max); save(); render(); toast(check(P()));
@@ -652,28 +686,39 @@ function draw() {
   const ph = cur(); if (!ph) return;
   let shown, frac;
   if (run.wait) { shown = run.last; frac = Math.min(1, run.last / cfg.max); }
-  else if (ph.up) { shown = Math.floor(el()); frac = Math.min(1, el() / cfg.max); }
+  else if (ph.up) { shown = Math.floor(el()); frac = Math.min(1, el() / (ph.k === 'work' ? 60 : cfg.max)); }
   else { const e = el(); shown = Math.ceil(Math.max(0, ph.t - e)); frac = Math.min(1, e / ph.t); }
   $('clock').textContent = fmt(shown);
   setDial(frac);
+  guide(ph);
   updBlind(shown);
+}
+let gLast = null;
+function guide(ph) {
+  const g = $('gd'), on = cfg.guide && run && !run.wait && !run.paused && ph && ['prep', 'breathe', 'rest'].includes(ph.k);
+  if (!on) { g.setAttribute('opacity', '0'); gLast = null; return; }
+  const t = el() % 12, inh = t < 4, k = inh ? t / 4 : 1 - (t - 4) / 8, e = .5 - Math.cos(Math.PI * k) / 2, sc = .55 + .45 * e;
+  g.setAttribute('opacity', '1'); g.setAttribute('transform', `translate(150 150) scale(${sc.toFixed(3)}) translate(-150 -150)`);
+  const w = inh ? 'Einatmen' : 'Ausatmen';
+  $('phase').textContent = w;
+  if (gLast !== w) { if (gLast !== null && ph.k === 'prep') tone(inh ? 392 : 294, .6, .1); gLast = w; }
 }
 function setDial(frac) { $('prog').style.strokeDashoffset = C * (1 - frac); $('pip').setAttribute('transform', `rotate(${frac * 360} 150 150)`); }
 function updBlind(shown) {
   const ph = cur(), on = S.set.blind && run && !run.wait && !hideBlind && !P().kind;
   $('blind').hidden = !on; if (!on) return;
   const h = isHold(ph);
-  $('bPhase').textContent = run.paused ? 'Pausiert' : NAMES[ph.k]; $('bPhase').className = h ? 'h' : '';
+  $('bPhase').textContent = run.paused ? 'Pausiert' : (cfg.guide && ['prep', 'breathe', 'rest'].includes(ph.k) ? $('phase').textContent : NAMES[ph.k]); $('bPhase').className = h ? 'h' : '';
   $('bClock').textContent = fmt(shown);
   let info = '';
   if (run.mode === 'session') { const x = run.res[ph.r]; info = 'Runde ' + (ph.r + 1) + ' von ' + run.res.length + (ph.k === 'hold' && x.n ? ', ' + x.n + (x.n === 1 ? ' Kontraktion' : ' Kontraktionen') : ''); }
   else info = run.mode === 'walk' ? 'Apnoe-Gehen' : 'Bestzeit-Test';
   $('bInfo').textContent = info;
-  $('bHelp').textContent = !h ? 'Ruhig atmen. Ton und Ansage sagen dir, wann es weitergeht.' : run.mode === 'session' ? 'Tippen: Kontraktion. Gedrückt halten: Luft geholt.' : 'Gedrückt halten: Luft geholt.';
+  $('bHelp').textContent = ph.k === 'work' ? cfg.surfEx + '. Danach hinsetzen und gedrückt halten: jetzt Luft anhalten.' : !h ? 'Ruhig atmen. Ton und Ansage sagen dir, wann es weitergeht.' : run.mode === 'session' ? 'Tippen: Kontraktion. Gedrückt halten: Luft geholt.' : 'Gedrückt halten: Luft geholt.';
 }
 function ctrlHTML() {
   const p = P();
-  if (!run) return `<button class="btn pri big" data-a="start">${p.mode === 'o2' ? 'O2' : 'CO2'}-Tabelle starten</button><button class="btn" data-a="test">Bestzeit messen</button><button class="btn" data-a="walk">Apnoe-Gehen</button>`;
+  if (!run) return `<button class="btn pri big" data-a="start">${p.mode === 'surf' ? 'Surf-Session' : TYPEL[p.mode] + '-Tabelle'} starten</button><button class="btn" data-a="test">Bestzeit messen</button><button class="btn" data-a="walk">Apnoe-Gehen</button>`;
   const ph = cur(), pz = `<button class="btn" data-a="pause">${run.paused ? 'Weiter' : 'Pause'}</button>`;
   const bl = S.set.blind && hideBlind && !run.wait ? `<button class="btn" data-a="blindShow">Augen-zu-Ansicht</button>` : '';
   if (run.mode === 'test') {
@@ -686,6 +731,7 @@ function ctrlHTML() {
     if (ph.k === 'walk') return `<button class="btn hot big" data-a="air">Luft geholt</button>${bl}<button class="btn" data-a="stop">Abbrechen</button>`;
     return `<button class="btn pri big" data-a="skip">Jetzt losgehen</button>${pz}${bl}<button class="btn" data-a="stop">Abbrechen</button>`;
   }
+  if (ph.k === 'work') return `<button class="btn hot big" data-a="skip">Fertig, hinsetzen und halten</button>${pz}${bl}<button class="btn" data-a="stop">Stopp</button>`;
   if (ph.k === 'hold') {
     const n = run.res[ph.r].n;
     return `<button class="btn hot big" data-a="air">Luft geholt</button><button class="btn" data-a="contr">Kontraktion${n ? ' (' + n + ')' : ''}</button>${pz}${bl}<button class="btn" data-a="stop">Stopp</button>`;
@@ -698,20 +744,20 @@ function renderTrain() {
   $('today').innerHTML = `<div><span>Heute dran</span><b>${tp.b}</b><span>${tp.s}</span></div>` + (['test', 'co2', 'o2'].includes(tp.k) && !run ? `<button class="btn pri" data-a="todayGo" data-k="${tp.k}">Starten</button>` : '');
   $('fs').disabled = !!run;
   if (document.activeElement !== $('max')) $('max').value = fmt(cfg.max);
-  ['pct', 'start', 'step', 'min', 'rounds', 'o2rest'].forEach(k => { if (document.activeElement !== $('c-' + k)) $('c-' + k).value = cfg[k]; });
+  ['pct', 'start', 'step', 'min', 'rounds', 'o2rest', 'surfHold', 'surfRest', 'surfRounds'].forEach(k => { if (document.activeElement !== $('c-' + k)) $('c-' + k).value = cfg[k]; });
   $('exnote').hidden = !p.example;
-  $('modeSeg').innerHTML = [['co2', 'CO2-Tabelle'], ['o2', 'O2-Tabelle']].map(([k, l]) => `<button type="button" class="btn" data-a="mode" data-k="${k}" aria-pressed="${p.mode === k}">${l}</button>`).join('');
-  $('modeNote').textContent = p.mode === 'o2' ? 'Pause bleibt gleich, die Haltezeit steigt bis 80 % deiner Bestzeit. Trainiert, mit wenig Sauerstoff auszukommen.' : 'Haltezeit bleibt gleich, die Pausen werden kürzer. Trainiert, den Atemreiz auszuhalten.';
+  $('modeSeg').innerHTML = [['co2', 'CO2'], ['o2', 'O2'], ['surf', 'Surf']].map(([k, l]) => `<button type="button" class="btn" data-a="mode" data-k="${k}" aria-pressed="${p.mode === k}">${l}</button>`).join('');
+  $('modeNote').textContent = p.mode === 'surf' ? 'Erst ' + cfg.surfEx + ', dann sofort hinsetzen und kurz die Luft anhalten, dann erholen. Simuliert eine Welle, die dich unten hält, wenn du schon außer Atem bist. Nach der Belastung immer hinsetzen oder hinknien, nie im Stehen halten.' : p.mode === 'o2' ? 'Pause bleibt gleich, die Haltezeit steigt bis 80 % deiner Bestzeit. Trainiert, mit wenig Sauerstoff auszukommen.' : 'Haltezeit bleibt gleich, die Pausen werden kürzer. Trainiert, den Atemreiz auszuhalten.';
   $('dial').className = 'dial ' + (!ph ? 'idle' : isHold(ph) ? 'hold' : 'breathe');
   if (!run) {
     if (last) {
       $('phase').textContent = last.stopped ? 'Gestoppt' : 'Fertig';
       $('clock').textContent = last.done + '/' + last.total;
       $('rnd').textContent = 'Runden voll gehalten';
-      $('nxt').textContent = last.pl.type === 'o2' ? 'O2-Tabelle' : 'CO2-Tabelle';
+      $('nxt').textContent = last.pl.type === 'surf' ? 'Surf-Session' : TYPEL[last.pl.type] + '-Tabelle';
       setDial(last.done / last.total);
     } else {
-      $('phase').textContent = p.mode === 'o2' ? 'O2-Tabelle' : 'CO2-Tabelle';
+      $('phase').textContent = p.mode === 'surf' ? 'Surf-Session' : TYPEL[p.mode] + '-Tabelle';
       $('clock').textContent = fmt(pl.holds[0]);
       $('rnd').textContent = pl.holds.length + ' Runden, ca. ' + Math.round(dur(pl) / 60) + ' Min.';
       $('nxt').textContent = 'Erste Pause ' + fmt(pl.rests[0]);
@@ -722,12 +768,16 @@ function renderTrain() {
     $('phase').textContent = run.paused ? 'Pausiert' : run.wait ? 'Erholen' : NAMES[ph.k];
     if (run.mode === 'test') { $('rnd').textContent = ph.k === 'prep' ? 'Vorbereitung' : ph.k === 'rest' ? 'Pause vor Versuch 2' : 'Versuch ' + (run.tries.length + (run.wait ? 0 : 1)); $('nxt').textContent = p.example ? '' : 'Bisherige Bestzeit ' + fmt(cfg.max); }
     else if (run.mode === 'walk') { $('rnd').textContent = 'Apnoe-Gehen'; $('nxt').textContent = ''; }
-    else { const r = ph.r, n = pl.holds.length; $('rnd').textContent = 'Runde ' + (r + 1) + ' von ' + n; $('nxt').textContent = ph.k === 'breathe' ? 'Danach halten ' + fmt(pl.holds[r]) : r + 1 < n ? 'Danach atmen ' + fmt(pl.rests[r + 1]) : 'Letzte Runde'; }
+    else { const r = ph.r, n = pl.holds.length; $('rnd').textContent = 'Runde ' + (r + 1) + ' von ' + n; $('nxt').textContent = pl.type === 'surf' ? (ph.k === 'work' ? 'Danach halten ' + fmt(pl.holds[r]) : ph.k === 'hold' ? 'Danach erholen ' + fmt(pl.rests[r]) : r + 1 < n ? 'Danach ' + cfg.surfEx : 'Letzte Runde') : ph.k === 'breathe' ? 'Danach halten ' + fmt(pl.holds[r]) : r + 1 < n ? 'Danach atmen ' + fmt(pl.rests[r + 1]) : 'Letzte Runde'; }
     draw();
   }
   $('ctrl').innerHTML = ctrlHTML();
   const fp = planOf(p.mode);
-  $('facts').innerHTML = (p.mode === 'o2' ? [
+  $('facts').innerHTML = (p.mode === 'surf' ? [
+    [fmt(cfg.surfHold), 'Haltezeit nach Belastung'],
+    [cfg.surfEx, 'Belastung je Runde'],
+    ['ca. ' + Math.round(dur(fp) / 60) + ' Min.', fp.holds.length + ' Runden, ' + fmt(cfg.surfRest) + ' Erholung']
+  ] : p.mode === 'o2' ? [
     [fmt(fp.holds[0]) + ' → ' + fmt(fp.holds[fp.holds.length - 1]), 'Haltezeit steigt'],
     [fmt(cfg.o2rest), 'Pause je Runde'],
     ['ca. ' + Math.round(dur(fp) / 60) + ' Min.', fp.holds.length + ' Runden']
@@ -747,14 +797,18 @@ function renderTrain() {
   }).join('');
   const pr = prog();
   $('hint').innerHTML = pr && !run ? `<div class="hint"><span>Zwei volle CO2-Sessions mit ${fmt(holdT())}. Bereit für ${fmt(pr)}.</span><button class="btn pri" data-a="prog">Auf ${fmt(pr)} erhöhen</button></div>` : '';
-  $('hist').innerHTML = p.hist.length ? `<div class="scroll"><table><thead><tr><th>Datum</th><th>Tabelle</th><th>Halten</th><th>Kontr.</th><th>Voll</th></tr></thead><tbody>${p.hist.slice(0, 8).map(x => `<tr><td>${dm(x.d)}</td><td>${x.type === 'o2' ? 'O2' : 'CO2'}</td><td>${fmt(x.hold)}</td><td>${x.cfirst ? fmt(x.cfirst) : ''}</td><td class="${x.done === x.total ? 'ok' : ''}">${x.done}/${x.total}</td></tr>`).join('')}</tbody></table></div>` : '<p class="empty">Noch keine Session. Nach der ersten steht sie hier.</p>';
+  $('hist').innerHTML = p.hist.length ? `<div class="scroll"><table><thead><tr><th>Datum</th><th>Typ</th><th>Halten</th><th>Kontr.</th><th>Puls</th><th>Voll</th></tr></thead><tbody>${p.hist.slice(0, 8).map(x => `<tr><td>${dm(x.d)}</td><td>${TYPEL[x.type] || 'CO2'}</td><td>${fmt(x.hold)}</td><td>${x.cfirst ? fmt(x.cfirst) : ''}</td><td>${x.hr || ''}</td><td class="${x.done === x.total ? 'ok' : ''}">${x.done}/${x.total}</td></tr>`).join('')}</tbody></table></div>` : '<p class="empty">Noch keine Session. Nach der ersten steht sie hier.</p>';
+  if (document.activeElement !== $('pulse')) $('pulse').value = p.pulse || '';
+  $('c-surfEx').value = document.activeElement === $('c-surfEx') ? $('c-surfEx').value : cfg.surfEx; $('c-guide').checked = !!cfg.guide;
+  const pb = poolBest(p), PL = {sta: ['Statik', v => fmt(v)], dyn: ['Mit Flossen', v => v + ' m'], dnf: ['Ohne Flossen', v => v + ' m'], cwt: ['Tiefe', v => v + ' m']};
+  $('pool').innerHTML = p.pool.length ? `<div class="facts" style="margin:0 0 10px">${Object.keys(PL).filter(k => pb[k]).map(k => `<div class="fact"><b>${PL[k][1](pb[k])}</b><span>${PL[k][0]} Rekord</span></div>`).join('')}</div><div class="dlist">${p.pool.slice(0, 6).map(x => `<span>${dm(x.d)}: ${PL[x.k][0]} ${PL[x.k][1](x.v)}</span>`).join('')}</div>` : '<p class="empty">Noch kein Eintrag. Nach dem ersten Pooltraining oder im Kurs hier eintragen.</p>';
   const wb = p.walks.reduce((a, x) => Math.max(a, x.steps), 0);
   $('walks').innerHTML = p.walks.length ? `<div class="facts" style="margin:0 0 10px"><div class="fact"><b>${wb}</b><span>Schritte Rekord</span></div><div class="fact"><b>${p.walks.length}</b><span>Durchgänge</span></div></div><div class="dlist">${p.walks.slice(0, 6).map(x => `<span>${dm(x.d)}: ${x.steps} Schritte, ${fmt(x.t)}</span>`).join('')}</div>` : '<p class="empty">Noch kein Durchgang. Starte links mit „Apnoe-Gehen“.</p>';
 }
 
 /* ---------- Erfolge (Erwachsene) ---------- */
 const LV = [{t: 120, n: 'AIDA 2', s: 'A2'}, {t: 165, n: 'AIDA 3', s: 'A3'}, {t: 210, n: 'AIDA 4', s: 'A4'}, {t: 240, n: 'Instructor', s: 'Instr.'}];
-const GROUPS = ['AIDA-Meilensteine', 'Zeiten', 'Dranbleiben', 'Technik'];
+const GROUPS = ['AIDA-Meilensteine', 'Zeiten', 'Dranbleiben', 'Technik', 'Im Wasser'];
 const tNeed = t => s => s.pb && s.pb < t ? 'noch ' + fmt(t - s.pb) : '';
 const ACH = [
   {id: 'a1', g: 0, big: 1, m: 'A1', n: 'AIDA 1', d: 'Für AIDA 1 gibt es keine Zeitvorgabe. Erste Session geschafft, der Einstieg steht.', ok: s => s.n >= 1},
@@ -787,6 +841,19 @@ const ACH = [
   {id: 'c60', g: 3, m: 'K1', n: 'Ruhig bleiben', d: 'Erste Kontraktion erst nach 1:00.', ok: s => s.c >= 60},
   {id: 'c90', g: 3, ext: 1, m: 'K2', n: 'Eisblock', d: 'Erste Kontraktion erst nach 1:30.', ok: s => s.c >= 90},
   {id: 'aw50', g: 3, m: '50', n: 'Apnoe-Geher', d: '50 Schritte mit angehaltener Luft.', ok: s => s.walk >= 50, need: s => s.walk && s.walk < 50 ? 'noch ' + (50 - s.walk) + ' Schritte' : ''},
+  {id: 'surf', g: 3, m: 'S', n: 'Wellenreiter', d: 'Eine Surf-Session mit allen Runden voll.', ok: s => s.surffull >= 1},
+  {id: 'surf5', g: 3, m: 'S5', n: 'Bereit für Uluwatu', d: 'Fünf volle Surf-Sessions.', ok: s => s.surffull >= 5, need: s => s.surffull < 5 ? s.surffull + ' von 5' : ''},
+  {id: 'pool1', g: 4, m: 'P', n: 'Ab ins Wasser', d: 'Erstes Training im Pool eingetragen.', ok: s => s.pools >= 1},
+  {id: 'pd25', g: 4, m: '25m', n: 'Eine Bahn', d: '25 Meter Strecke unter Wasser.', ok: s => s.dyn >= 25},
+  {id: 'pd40', g: 4, m: '40m', n: 'AIDA 2 Strecke', d: '40 Meter Strecke, die Vorgabe für Level 2.', ok: s => s.dyn >= 40, need: s => s.dyn && s.dyn < 40 ? 'noch ' + (40 - s.dyn) + ' m' : ''},
+  {id: 'pd55', g: 4, m: '55m', n: 'AIDA 3 Strecke', d: '55 Meter Strecke, die Vorgabe für Level 3.', ok: s => s.dyn >= 55, need: s => s.dyn && s.dyn < 55 ? 'noch ' + (55 - s.dyn) + ' m' : ''},
+  {id: 'pd70', g: 4, ext: 1, m: '70m', n: 'AIDA 4 Strecke', d: '70 Meter Strecke mit Flossen, die Vorgabe für Level 4.', ok: s => s.dyn >= 70, need: s => s.dyn && s.dyn < 70 ? 'noch ' + (70 - s.dyn) + ' m' : ''},
+  {id: 'pc12', g: 4, m: '12m', n: 'AIDA 2 Tiefe', d: '12 Meter Tiefe, die Vorgabe für Level 2.', ok: s => s.cwt >= 12},
+  {id: 'pc24', g: 4, m: '24m', n: 'AIDA 3 Tiefe', d: '24 Meter Tiefe, die Vorgabe für Level 3.', ok: s => s.cwt >= 24},
+  {id: 'pc32', g: 4, ext: 1, m: '32m', n: 'AIDA 4 Tiefe', d: '32 Meter Tiefe, die Vorgabe für Level 4.', ok: s => s.cwt >= 32},
+  {id: 'pa2', g: 4, big: 1, m: '2★', n: 'AIDA 2 komplett', d: 'Statik 2:00, 40 m Strecke und 12 m Tiefe geschafft.', ok: s => Math.max(s.pb, s.wsta) >= 120 && s.dyn >= 40 && s.cwt >= 12},
+  {id: 'pa3', g: 4, big: 1, m: '3★', n: 'AIDA 3 komplett', d: 'Statik 2:45, 55 m Strecke und 24 m Tiefe geschafft.', ok: s => Math.max(s.pb, s.wsta) >= 165 && s.dyn >= 55 && s.cwt >= 24},
+  {id: 'pa4', g: 4, big: 1, ext: 1, m: '4★', n: 'AIDA 4 komplett', d: 'Statik 3:30, 70 m Strecke und 32 m Tiefe geschafft.', ok: s => Math.max(s.pb, s.wsta) >= 210 && s.dyn >= 70 && s.cwt >= 32},
   {id: 'aw100', g: 3, ext: 1, m: '100', n: 'Hundert Schritte', d: '100 Schritte mit angehaltener Luft.', ok: s => s.walk >= 100, need: s => s.walk && s.walk < 100 ? 'noch ' + (100 - s.walk) + ' Schritte' : ''}
 ];
 const monday = d => { const x = new Date(day(d)); x.setUTCDate(x.getUTCDate() - ((x.getUTCDay() + 6) % 7)); return x.getTime(); };
@@ -794,13 +861,14 @@ function stats(p) {
   const asc = p.hist.slice().reverse(), cur0 = p.example ? 0 : p.cfg.max;
   const pb = Math.max(0, cur0, ...p.maxHist.map(x => x.t));
   const first = p.maxHist.length ? p.maxHist[0].t : cur0;
-  const perf = asc.filter(x => x.done === x.total), co2 = asc.filter(x => x.type !== 'o2'), ds = asc.map(x => day(x.d));
+  const perf = asc.filter(x => x.done === x.total), co2 = asc.filter(isCO2), ds = asc.map(x => day(x.d)), pb2 = poolBest(p);
   let w7 = 0; ds.forEach(t => { w7 = Math.max(w7, ds.filter(u => u >= t && u < t + 7 * 864e5).length); });
   let runW = 0, weeks = 0, prev = null;
   [...new Set(asc.map(x => monday(x.d)))].sort((a, b) => a - b).forEach(t => { runW = prev != null && Math.round((t - prev) / 864e5) === 7 ? runW + 1 : 1; weeks = Math.max(weeks, runW); prev = t; });
   const rd = asc.reduce((a, x) => a + x.done, 0), rt = asc.reduce((a, x) => a + x.total, 0);
   return {n: asc.length, pb, cur: cur0, gain: pb - first, hasFirst: !!first, perf: perf.length, o2full: perf.filter(x => x.type === 'o2').length,
-    fullHold: Math.max(0, ...perf.filter(x => x.type !== 'o2').map(x => x.hold)), up: co2.length > 1 && co2.some(x => x.hold > co2[0].hold),
+    fullHold: Math.max(0, ...perf.filter(isCO2).map(x => x.hold)), surffull: perf.filter(x => x.type === 'surf').length,
+    wsta: pb2.sta || 0, dyn: Math.max(pb2.dyn || 0, pb2.dnf || 0), cwt: pb2.cwt || 0, pools: p.pool.length, up: co2.length > 1 && co2.some(x => x.hold > co2[0].hold),
     c: Math.max(0, ...asc.map(x => x.cmax || 0)), w7, weeks, rate: rt ? Math.round(rd / rt * 100) : 0, walk: p.walks.reduce((a, x) => Math.max(a, x.steps), 0),
     lastC: (asc.filter(x => x.cfirst).pop() || {}).cfirst || 0};
 }
@@ -823,6 +891,10 @@ function renderAch() {
     [st.rate + ' %', 'Runden voll gehalten'],
     [st.lastC ? fmt(st.lastC) : '0:00', 'erste Kontraktion zuletzt']
   ].map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join('');
+  const hrS = p.hist.filter(x => x.hr && x.type !== 'surf'), med = hrS.length ? hrS.map(x => x.hr).sort((a, b) => a - b)[Math.floor(hrS.length / 2)] : 0;
+  const rate = a => { const d = a.reduce((x, y) => x + y.done, 0), t = a.reduce((x, y) => x + y.total, 0); return t ? Math.round(d / t * 100) : 0; };
+  const lo2 = hrS.filter(x => x.hr < med), hi2 = hrS.filter(x => x.hr >= med);
+  $('hrNote').textContent = hrS.length >= 4 && lo2.length && hi2.length ? 'Ruhepuls: Bei unter ' + med + ' hast du ' + rate(lo2) + ' % der Runden voll gehalten, bei ' + med + ' und mehr ' + rate(hi2) + ' %. ' + (rate(lo2) > rate(hi2) ? 'Entspannt starten lohnt sich.' : 'Bisher kein klarer Zusammenhang.') : hrS.length ? 'Ruhepuls: ' + hrS.length + ' von 4 Sessions mit Puls eingetragen, dann zeige ich dir hier den Zusammenhang mit deinen Runden.' : 'Trag vor einer Session deinen Ruhepuls ein, dann siehst du hier ab vier Sessions, wie Entspannung und Leistung zusammenhängen.';
   const got = ACH.filter(a => p.ach[a.id]).length;
   $('achHead').textContent = 'Achievements ' + got + ' von ' + ACH.length;
   $('achList').innerHTML = GROUPS.map((g, gi) => `<h3>${g}</h3><div class="achs">` + ACH.filter(a => a.g === gi).map(a => {
@@ -955,7 +1027,7 @@ function renderSticker() {
 }
 
 /* ---------- Perlen, Sterne, Belohnungen, Familie ---------- */
-const pearlDays = p => new Set(p.kind ? p.kid.dives.map(x => x.d) : [...p.hist, ...p.walks, ...p.maxHist].map(x => x.d));
+const pearlDays = p => new Set(p.kind ? p.kid.dives.map(x => x.d) : [...p.hist, ...p.walks, ...p.maxHist, ...p.pool].map(x => x.d));
 const pearls = p => pearlDays(p).size;
 const starsN = p => new Set(p.stars).size;
 const snap = p => [pearls(p), starsN(p)];
@@ -1163,6 +1235,14 @@ const acts = {
   give: b => { const r = P()[SETS[b.dataset.s].key][+b.dataset.i]; r.got = !r.got; save(); renderSchatz(); },
   goalm: () => { S.teamGoal = Math.max(5, S.teamGoal - 5); save(); render(); },
   goalp: () => { S.teamGoal = Math.min(200, S.teamGoal + 5); save(); render(); },
+  poolSave: () => {
+    const k = $('poolK').value, raw = $('poolV').value, v = k === 'sta' ? parse(raw) : Math.round(parseFloat(String(raw).replace(',', '.')));
+    if (!$('poolB').checked) { $('poolMsg').textContent = 'Im Wasser nur mit Buddy, der dich beobachtet. Bitte bestätigen.'; return; }
+    if (!isFinite(v) || v <= 0 || (k !== 'sta' && v > 300)) { $('poolMsg').textContent = 'Bitte einen gültigen Wert eintragen.'; return; }
+    const before = snap(P()); P().pool.unshift({d: today(), k, v}); P().pool = P().pool.slice(0, 300); save();
+    $('poolV').value = ''; $('poolB').checked = false; $('poolMsg').textContent = 'Eingetragen.';
+    render(); toast([...gainItems(P(), before), ...check(P())]);
+  },
   m5: () => setMax(cfg.max - 5), p5: () => setMax(cfg.max + 5),
   prog: () => { const pr = prog(); if (pr) { cfg.hold = pr; save(); render(); } },
   reset: () => { cfg.hold = null; save(); render(); },
@@ -1204,7 +1284,10 @@ $('renForm').addEventListener('submit', e => { e.preventDefault(); const v = $('
 $('max').addEventListener('change', e => setMax(parse(e.target.value)));
 $('max').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'steps') acts.walkSave(); });
-const lim = {pct: [30, 80], start: [30, 240], step: [0, 60], min: [5, 120], rounds: [3, 12], o2rest: [60, 240]};
+const lim = {pct: [30, 80], start: [30, 240], step: [0, 60], min: [5, 120], rounds: [3, 12], o2rest: [60, 240], surfHold: [10, 60], surfRest: [30, 240], surfRounds: [3, 10]};
+$('pulse').addEventListener('change', e => { const v = Math.round(+e.target.value); P().pulse = v >= 30 && v <= 140 ? v : null; save(); });
+$('c-surfEx').addEventListener('change', e => { cfg.surfEx = e.target.value.trim().slice(0, 30) || '15 Burpees'; save(); render(); });
+$('c-guide').addEventListener('change', e => { cfg.guide = e.target.checked; save(); });
 Object.keys(lim).forEach(k => {
   const i = $('c-' + k);
   i.addEventListener('change', () => { const v = Math.round(+i.value); if (isFinite(v) && i.value !== '') { cfg[k] = Math.min(lim[k][1], Math.max(lim[k][0], v)); if (k === 'pct') cfg.hold = null; } i.value = cfg[k]; save(); render(); });
@@ -1215,9 +1298,9 @@ Object.keys(lim).forEach(k => {
 {
   const bl = $('blind'); let pt = null, long = false;
   bl.addEventListener('pointerdown', e => {
-    if (e.target.closest('#bClose') || !run || !isHold(cur())) return;
+    const c0 = cur(); if (e.target.closest('#bClose') || !run || !(isHold(c0) || (c0 && c0.k === 'work'))) return;
     long = false; clearTimeout(pt);
-    pt = setTimeout(() => { long = true; pt = null; vib([80, 60, 80]); acts.air(); }, 650);
+    pt = setTimeout(() => { long = true; pt = null; vib([80, 60, 80]); if (cur() && cur().k === 'work') acts.skip(); else acts.air(); }, 650);
   });
   const up = e => { if (!pt) return; clearTimeout(pt); pt = null; if (!long && run && run.mode === 'session' && cur() && cur().k === 'hold') acts.contr(); };
   bl.addEventListener('pointerup', up);
