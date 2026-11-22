@@ -223,6 +223,7 @@ body.adult .team i{background:linear-gradient(90deg,#5d6b78,#dff5e8)}
     <h1 id="title">Atemtraining</h1>
     <div class="who">
       <button class="pill" data-a="people" id="whoBtn">Person wählen</button>
+      <button class="chip" data-a="langToggle" id="langBtn" style="min-height:44px">English</button>
       <button class="link" data-a="rename" id="renBtn">Profil bearbeiten</button>
       <form id="renForm" hidden>
         <input type="text" id="renIn" maxlength="24" aria-label="Name" autocomplete="off">
@@ -233,6 +234,32 @@ body.adult .team i{background:linear-gradient(90deg,#5d6b78,#dff5e8)}
       </form>
     </div>
   </header>
+
+  <section id="langPick" hidden>
+    <h2>Sprache / Language</h2>
+    <div class="seg" style="max-width:520px">
+      <button class="btn pri big" data-a="lang" data-l="de">Deutsch</button>
+      <button class="btn pri big" data-a="lang" data-l="en">English</button>
+    </div>
+  </section>
+
+  <section id="onboard" hidden>
+    <div id="obKind">
+      <h2>Bist du ein Kind oder erwachsen?</h2>
+      <div class="seg" style="max-width:520px">
+        <button class="btn pri big" data-a="obKind" data-v="1">Kind</button>
+        <button class="btn pri big" data-a="obKind" data-v="0">Erwachsen</button>
+      </div>
+    </div>
+    <form id="obNameF" hidden>
+      <h2>Wie heißt du?</h2>
+      <div class="row" style="max-width:520px">
+        <input type="text" id="obName" maxlength="24" autocomplete="off" aria-label="Name" style="flex:1 1 12em;text-align:left;font-size:20px">
+        <button class="btn pri" type="submit">Weiter</button>
+      </div>
+    </form>
+    <button class="link" data-a="obBack" style="margin-top:16px">Zurück</button>
+  </section>
 
   <section id="picker" hidden>
     <h2>Wer trainiert?</h2>
@@ -547,10 +574,210 @@ for (let i = 0; i < 10; i++) {
 }
 if (S.tab) { if (S.cur != null) S.people[S.cur].tab = S.tab === 'apnoe' ? 'train' : S.tab; delete S.tab; }
 if (S.cur != null && !S.people[S.cur]) S.cur = null;
+const isEmpty = p => p.example && !p.hist.length && !p.maxHist.length && !p.stars.length && !p.kid.dives.length && !p.walks.length && !(p.pool || []).length && /^Person \d+$/.test(p.name);
+S.people.forEach(p => { if (!p.setup && !isEmpty(p)) p.setup = true; });
+if (S.lang === undefined) S.lang = null;
 const save = () => { try { localStorage.setItem('atem-v2', JSON.stringify(S)); } catch (e) {} };
 const P = () => S.people[S.cur];
+/* ---------- Sprache (DE ist die Quelle, EN wird übersetzt) ---------- */
+const EN = {
+  'Atemtraining': 'Breath training', 'Person wählen': 'Choose person', 'Profil bearbeiten': 'Edit profile', 'Name': 'Name', 'Neuer Name': 'New name',
+  'Speichern': 'Save', 'Abbrechen': 'Cancel', 'Profil leeren': 'Clear profile', 'Wirklich alle Daten löschen?': 'Really delete all data?',
+  'Wer trainiert?': "Who's training?", 'Erwachsen': 'Adult', 'Kind': 'Child', 'Noch leer': 'Empty',
+  'Daten sichern oder auf ein anderes Gerät übertragen': 'Back up data or move it to another device',
+  'Der Backup-Code enthält alle zehn Profile. Kopier ihn zum Beispiel in deine Notizen und füg ihn auf dem neuen Gerät hier ein.': 'The backup code contains all ten profiles. Copy it into your notes, for example, and paste it here on the new device.',
+  'Backup-Code kopieren': 'Copy backup code', 'Backup-Code': 'Backup code', 'Code einlesen': 'Load code', 'Backup-Code einfügen': 'Paste backup code', 'Code hier einfügen': 'Paste code here',
+  'Ersetzt alle Profile hier. Nochmal tippen': 'Replaces all profiles here. Tap again',
+  'Die Profile bleiben auf diesem Gerät. Wer den Link woanders öffnet, startet mit eigenen, leeren Profilen.': 'Profiles stay on this device. Anyone opening the link elsewhere starts with their own empty profiles.',
+  'Kopiert. Speicher den Code an einem sicheren Ort.': 'Copied. Keep the code somewhere safe.',
+  'Kopieren ging nicht automatisch. Markier den Code oben und kopier ihn von Hand.': 'Automatic copy failed. Select the code above and copy it by hand.',
+  'Markier den Code oben und kopier ihn von Hand.': 'Select the code above and copy it by hand.',
+  'Der Code ist nicht gültig. Bitte vollständig einfügen.': 'The code is not valid. Please paste it completely.', 'Eingelesen. Die Seite lädt neu.': 'Loaded. The page will reload.',
+  'Training': 'Training', 'Erfolge': 'Achievements', 'Einschlafen': 'Bedtime', 'Tauchspiel': 'Dive game', 'Schatzkiste': 'Treasure chest',
+  'Heute dran': "Today's plan", 'Starten': 'Start', 'Bestzeit messen': 'Measure best time', 'Damit die Tabellen zu dir passen.': 'So the tables fit you.',
+  'Heute erledigt': 'Done for today', 'Gut gemacht.': 'Well done.', 'Heute Pause': 'Rest day', 'Zwei Tage am Stück trainiert.': 'Two days of training in a row.',
+  'Erholung gehört zum Training.': 'Recovery is part of training.', 'Bestzeit testen': 'Test best time', 'Zeit für einen neuen Wert.': 'Time for a new value.',
+  'CO2-Tabelle': 'CO2 table', 'O2-Tabelle': 'O2 table', 'Surf-Session': 'Surf session', 'Surf-Session starten': 'Start surf session',
+  'Bereit': 'Ready', 'Fertig': 'Done', 'Gestoppt': 'Stopped', 'Pausiert': 'Paused', 'Erholen': 'Recover', 'Atmen': 'Breathe', 'Halten': 'Hold', 'Ruhig atmen': 'Breathe calmly',
+  'Pause': 'Rest', 'Gehen': 'Walk', 'Belastung': 'Effort', 'Einatmen': 'Breathe in', 'Ausatmen': 'Breathe out', 'Runden voll gehalten': 'rounds held fully',
+  'Vorbereitung': 'Preparation', 'Pause vor Versuch 2': 'Rest before attempt 2', 'Apnoe-Gehen': 'Apnea walk', 'Letzte Runde': 'Last round', 'Bestzeit-Test': 'Best time test',
+  'Nur an Land, im Liegen oder Sitzen. Nie im Wasser, nie in der Badewanne.': 'Only on land, lying or sitting. Never in water, never in the bathtub.',
+  'Tabelle': 'Table', 'CO2': 'CO2', 'O2': 'O2', 'Surf': 'Surf',
+  'Haltezeit bleibt gleich, die Pausen werden kürzer.': 'Hold time stays the same, rests get shorter.', 'Trainiert, den Atemreiz auszuhalten.': 'Trains you to tolerate the urge to breathe.',
+  'Pause bleibt gleich, die Haltezeit steigt bis 80 % deiner Bestzeit.': 'Rest stays the same, hold time rises to 80 % of your best.', 'Trainiert, mit wenig Sauerstoff auszukommen.': 'Trains you to manage on little oxygen.',
+  'Simuliert eine Welle, die dich unten hält, wenn du schon außer Atem bist.': 'Simulates a wave holding you down when you are already out of breath.',
+  'Nach der Belastung immer hinsetzen oder hinknien, nie im Stehen halten.': 'After the effort always sit or kneel, never hold standing up.',
+  'Bestzeit im Liegen (Minuten:Sekunden)': 'Best time lying down (minutes:seconds)', '5 Sekunden weniger': '5 seconds less', '5 Sekunden mehr': '5 seconds more',
+  'Beispielwert.': 'Example value.', 'Trag die Zeit ein oder miss sie mit „Bestzeit messen“.': 'Enter your time or measure it with “Measure best time”.',
+  'Ruhepuls vor dem Start (optional, Schläge pro Minute)': 'Resting pulse before starting (optional, beats per minute)',
+  '1 Minute ruhig liegen, dann 30 Sekunden zählen und verdoppeln.': 'Lie still for 1 minute, then count for 30 seconds and double it.',
+  'Tabelle anpassen': 'Adjust table', 'CO2: Haltezeit in % der Bestzeit': 'CO2: hold time in % of best', 'CO2: erste Pause (Sek.)': 'CO2: first rest (sec)',
+  'CO2: Pause kürzer pro Runde (Sek.)': 'CO2: rest shorter per round (sec)', 'CO2: kürzeste Pause (Sek.)': 'CO2: shortest rest (sec)', 'O2: Pause (Sek.)': 'O2: rest (sec)',
+  'Runden': 'Rounds', 'Surf: Belastung': 'Surf: effort', 'Surf: Haltezeit (Sek.)': 'Surf: hold time (sec)', 'Surf: Erholung (Sek.)': 'Surf: recovery (sec)', 'Surf: Runden': 'Surf: rounds',
+  'Atemführung im Ring (4 Sek. ein, 8 Sek. aus)': 'Breathing guide in the ring (4 s in, 8 s out)',
+  'Haltezeit (manuell)': 'Hold time (manual)', 'Pausen': 'Rests', 'Haltezeit steigt': 'Hold time rises', 'Pause je Runde': 'Rest per round', 'Haltezeit nach Belastung': 'Hold after effort', 'Belastung je Runde': 'Effort per round',
+  'Ablauf': 'Sequence', 'Runde': 'Round', 'Kontr.': 'Contr.', 'Ergebnis': 'Result', '✓ voll': '✓ full', 'Verlauf': 'History', 'Datum': 'Date', 'Typ': 'Type', 'Puls': 'Pulse', 'Voll': 'Full',
+  'Noch keine Session.': 'No session yet.', 'Nach der ersten steht sie hier.': 'After the first one it shows up here.',
+  'Regel: Zwei CO2-Sessions hintereinander alle Runden voll, dann Haltezeit +5 Sekunden.': 'Rule: two CO2 sessions in a row with all rounds full, then hold time +5 seconds.',
+  'Pool-Logbuch': 'Pool log', 'Was hast du im Wasser gemacht?': 'What did you do in the water?', 'Statik (Minuten:Sekunden)': 'Static (minutes:seconds)',
+  'Strecke mit Flossen (Meter)': 'Distance with fins (meters)', 'Strecke ohne Flossen (Meter)': 'Distance without fins (meters)', 'Tiefe (Meter)': 'Depth (meters)', 'Wert': 'Value',
+  'Mit Buddy oder Instructor, der mich beobachtet hat': 'With a buddy or instructor who watched me', 'Eintragen': 'Log it', 'Eingetragen.': 'Logged.',
+  'Im Wasser nur mit Buddy, der dich beobachtet.': 'In the water only with a buddy watching you.', 'Bitte bestätigen.': 'Please confirm.', 'Bitte einen gültigen Wert eintragen.': 'Please enter a valid value.',
+  'Statik': 'Static', 'Mit Flossen': 'With fins', 'Ohne Flossen': 'Without fins', 'Tiefe': 'Depth',
+  'Noch kein Eintrag.': 'No entry yet.', 'Nach dem ersten Pooltraining oder im Kurs hier eintragen.': 'Log it here after your first pool session or during the course.',
+  'Nach dem Einatmen Luft anhalten und ruhig gehen, Schritte im Kopf zählen.': 'After inhaling, hold your breath and walk calmly, counting your steps.',
+  'Nur auf ebenem Boden, weg von Straßen, Treppen und Wasser, und lieber mit jemandem dabei.': 'Only on level ground, away from roads, stairs and water, and preferably with someone nearby.',
+  'Schritte Rekord': 'Steps record', 'Durchgänge': 'Rounds walked', 'Noch kein Durchgang.': 'No walk yet.', 'Starte links mit „Apnoe-Gehen“.': 'Start with “Apnea walk”.',
+  'Bestzeit messen ': 'Measure best time', 'Jetzt Luft anhalten': 'Hold your breath now', 'Jetzt losgehen': 'Start walking now', 'Weiter': 'Continue', 'Pausieren': 'Pause', 'Stopp': 'Stop',
+  'Luft geholt': 'Took a breath', 'Augen-zu-Ansicht': 'Eyes-closed view', 'Pause überspringen': 'Skip rest', 'Fertig, hinsetzen und halten': 'Done, sit down and hold',
+  'Zweiter Versuch nach 4 Min.': 'Second attempt after 4 min', 'Verwerfen': 'Discard', 'Zeit': 'Time', '. Wie viele Schritte?': '. How many steps?', ', beste Zeit heute': ', best today',
+  'Ansicht schließen': 'Close view', 'Tippen: Kontraktion. Gedrückt halten: Luft geholt.': 'Tap: contraction. Press and hold: took a breath.',
+  'Tippen: Kontraktion.': 'Tap: contraction.', 'Gedrückt halten: Luft geholt.': 'Press and hold: took a breath.',
+  'Ruhig atmen. Ton und Ansage sagen dir, wann es weitergeht.': 'Breathe calmly. Sound and voice tell you when to continue.',
+  'Danach hinsetzen und gedrückt halten: jetzt Luft anhalten.': 'Then sit down and press and hold: now hold your breath.',
+  'Ton': 'Sound', 'Ansage': 'Voice', 'Vibration': 'Vibration', 'Augen-zu-Modus': 'Eyes-closed mode', 'Ton testen': 'Test sound',
+  'Kein Ton? Lautstärke hochdrehen.': 'No sound? Turn up the volume.', 'Kein Ton?': 'No sound?', 'Lautstärke hochdrehen.': 'Turn up the volume.', 'Hilft das nicht, den Lautlos-Schalter am iPhone ausschalten.': 'If that does not help, turn off the silent switch on the iPhone.',
+  'Die AIDA-Zeiten gelten im Kurs im Wasser.': 'The AIDA times apply in the water during the course.', 'Hier misst du trocken, im Wasser ist meist etwas mehr drin.': 'Here you measure dry; in the water you can usually do a bit more.',
+  'Entwicklung': 'Progress', 'Bestzeit, Haltezeit und erste Kontraktion im Verlauf': 'Best time, hold time and first contraction over time',
+  'Weiße Linie: Bestzeit.': 'White line: best time.', 'Rote Punkte: Haltezeit der Tabellen, gefüllt heißt alle Runden voll.': 'Red dots: table hold time, filled means all rounds full.',
+  'Blaue Rauten: erste Kontraktion im Schnitt.': 'Blue diamonds: average first contraction.', 'Gestrichelt: AIDA-Stufen.': 'Dashed: AIDA levels.',
+  'Der Graph erscheint ab dem dritten Eintrag.': 'The chart appears from the third entry.', 'Bestzeit': 'Best time', 'seit dem ersten Test': 'since the first test', 'Session': 'session', 'Sessions': 'sessions',
+  'Runden voll gehalten ': 'rounds held fully', 'erste Kontraktion zuletzt': 'latest first contraction', 'Noch keine Bestzeit.': 'No best time yet.', 'Miss sie im Reiter Training.': 'Measure it in the Training tab.',
+  'Alle AIDA-Stufen geschafft.': 'All AIDA levels achieved.', 'Achievements': 'Achievements', 'Erweitert': 'Advanced',
+  'Entspannt starten lohnt sich.': 'Starting relaxed pays off.', 'Bisher kein klarer Zusammenhang.': 'No clear connection yet.',
+  'Trag vor einer Session deinen Ruhepuls ein, dann siehst du hier ab vier Sessions, wie Entspannung und Leistung zusammenhängen.': 'Enter your resting pulse before a session, and from four sessions on you will see here how relaxation and performance are connected.',
+  'AIDA-Meilensteine': 'AIDA milestones', 'Zeiten': 'Times', 'Dranbleiben': 'Consistency', 'Technik': 'Technique', 'Im Wasser': 'In the water',
+  'AIDA 1': 'AIDA 1', 'Für AIDA 1 gibt es keine Zeitvorgabe.': 'AIDA 1 has no time requirement.', 'Erste Session geschafft, der Einstieg steht.': 'First session done, you are on your way.',
+  '2:00 Statik, die Vorgabe für Level 2.': '2:00 static, the requirement for level 2.', '2:45 Statik, die Vorgabe für Level 3.': '2:45 static, the requirement for level 3.',
+  '3:30 Statik, die Vorgabe für Level 4.': '3:30 static, the requirement for level 4.', '4:00 Statik, Vorgabe im Instructor-Kurs.': '4:00 static, required in the instructor course.',
+  '1:30, Vorgabe für den PADI Basic Freediver.': '1:30, required for PADI Basic Freediver.', '2:30, Vorgabe für den PADI Freediver.': '2:30, required for PADI Freediver.',
+  'Drei Minuten': 'Three minutes', 'Die erste große runde Zahl.': 'The first big round number.', 'Viereinhalb': 'Four and a half', '4:30 Bestzeit.': '4:30 best time.',
+  'Fünf Minuten': 'Five minutes', 'Trocken ein richtig starkes Ergebnis.': 'A really strong result on land.', 'Sechs Minuten': 'Six minutes', 'Bereich von Wettkampf-Freedivern.': 'Competitive freediver territory.',
+  'Erster Sprung': 'First jump', '15 Sekunden mehr als beim ersten Test.': '15 seconds more than in the first test.', 'Halbe Minute mehr': 'Half a minute more',
+  '30 Sekunden mehr als beim ersten Test.': '30 seconds more than in the first test.', 'Eine Minute mehr': 'One minute more', 'Eine ganze Minute mehr als beim ersten Test.': 'A whole minute more than in the first test.',
+  'Hattrick': 'Hat trick', 'Drei Sessions geschafft.': 'Three sessions done.', 'Zehn Sessions': 'Ten sessions', 'Zehn Tabellen im Verlauf.': 'Ten tables in your history.',
+  'Fünfundzwanzig': 'Twenty-five', '25 Sessions.': '25 sessions.', 'Das ist Routine.': 'That is routine.', 'Fünfzig': 'Fifty', '50 Sessions.': '50 sessions.',
+  'Volle Woche': 'Full week', 'Drei Sessions innerhalb von sieben Tagen.': 'Three sessions within seven days.', 'Vier Wochen am Stück': 'Four weeks in a row',
+  'In vier Wochen hintereinander trainiert.': 'Trained in four consecutive weeks.', 'Zwei Monate dabei': 'Two months in', 'In acht Wochen hintereinander trainiert.': 'Trained in eight consecutive weeks.',
+  'Alles gehalten': 'All held', 'Eine Session mit allen Runden voll.': 'One session with all rounds full.', 'Fünfmal sauber': 'Five times clean', 'Fünf Sessions mit allen Runden voll.': 'Five sessions with all rounds full.',
+  'Sauerstoff-Profi': 'Oxygen pro', 'Eine O2-Tabelle mit allen Runden voll.': 'One O2 table with all rounds full.', 'Stufe hoch': 'Level up',
+  'CO2-Haltezeit gegenüber der ersten Session erhöht.': 'CO2 hold time increased since the first session.', 'Lange Tabelle': 'Long table', 'Volle CO2-Session mit 1:30 Haltezeit.': 'Full CO2 session with 1:30 hold time.',
+  'Zwei-Minuten-Tabelle': 'Two-minute table', 'Volle CO2-Session mit 2:00 Haltezeit.': 'Full CO2 session with 2:00 hold time.', 'Ruhig bleiben': 'Staying calm',
+  'Erste Kontraktion erst nach 1:00.': 'First contraction only after 1:00.', 'Eisblock': 'Ice block', 'Erste Kontraktion erst nach 1:30.': 'First contraction only after 1:30.',
+  'Wellenreiter': 'Wave rider', 'Eine Surf-Session mit allen Runden voll.': 'One surf session with all rounds full.', 'Bereit für Uluwatu': 'Ready for Uluwatu', 'Fünf volle Surf-Sessions.': 'Five full surf sessions.',
+  'Ab ins Wasser': 'Into the water', 'Erstes Training im Pool eingetragen.': 'First pool training logged.', 'Eine Bahn': 'One length', '25 Meter Strecke unter Wasser.': '25 meters underwater.',
+  'AIDA 2 Strecke': 'AIDA 2 distance', '40 Meter Strecke, die Vorgabe für Level 2.': '40 meters distance, the requirement for level 2.', 'AIDA 3 Strecke': 'AIDA 3 distance',
+  '55 Meter Strecke, die Vorgabe für Level 3.': '55 meters distance, the requirement for level 3.', 'AIDA 4 Strecke': 'AIDA 4 distance', '70 Meter Strecke mit Flossen, die Vorgabe für Level 4.': '70 meters with fins, the requirement for level 4.',
+  'AIDA 2 Tiefe': 'AIDA 2 depth', '12 Meter Tiefe, die Vorgabe für Level 2.': '12 meters depth, the requirement for level 2.', 'AIDA 3 Tiefe': 'AIDA 3 depth', '24 Meter Tiefe, die Vorgabe für Level 3.': '24 meters depth, the requirement for level 3.',
+  'AIDA 4 Tiefe': 'AIDA 4 depth', '32 Meter Tiefe, die Vorgabe für Level 4.': '32 meters depth, the requirement for level 4.',
+  'AIDA 2 komplett': 'AIDA 2 complete', 'Statik 2:00, 40 m Strecke und 12 m Tiefe geschafft.': 'Static 2:00, 40 m distance and 12 m depth achieved.',
+  'AIDA 3 komplett': 'AIDA 3 complete', 'Statik 2:45, 55 m Strecke und 24 m Tiefe geschafft.': 'Static 2:45, 55 m distance and 24 m depth achieved.',
+  'AIDA 4 komplett': 'AIDA 4 complete', 'Statik 3:30, 70 m Strecke und 32 m Tiefe geschafft.': 'Static 3:30, 70 m distance and 32 m depth achieved.',
+  'Apnoe-Geher': 'Apnea walker', '50 Schritte mit angehaltener Luft.': '50 steps holding your breath.', 'Hundert Schritte': 'A hundred steps', '100 Schritte mit angehaltener Luft.': '100 steps holding your breath.',
+  'Bereit?': 'Ready?', 'Luft anhalten, und der Wal taucht ab.': 'Hold your breath, and the whale dives down.', 'Tippe auf „Abtauchen“': 'Tap “Dive”', 'Abtauchen': 'Dive', 'Auftauchen': 'Surface',
+  'Ganz ruhig einatmen': 'Breathe in very calmly', 'Tippen, wenn du Luft brauchst': 'Tap when you need air', 'Erst ausruhen': 'Rest first', 'Ausruhen': 'Rest',
+  'Super getaucht!': 'Great diving!', 'Für heute genug.': 'Enough for today.', 'Morgen geht es weiter.': 'More tomorrow.', 'Deine Tauchgänge': 'Your dives', 'Rekord': 'Record', 'heute getaucht': 'dives today',
+  'Noch kein Tauchgang.': 'No dive yet.', 'Der Wal wartet schon.': 'The whale is waiting.', 'Für Eltern': 'For parents',
+  'Höchstens 45 Sekunden pro Tauchgang, danach taucht der Wal automatisch auf.': 'At most 45 seconds per dive, then the whale surfaces automatically.',
+  'Mindestens eine Minute Pause dazwischen und höchstens fünf Tauchgänge am Tag.': 'At least one minute of rest in between and at most five dives a day.',
+  'Nur im Bett oder auf dem Sofa, nie im Wasser und nie in der Badewanne.': 'Only in bed or on the sofa, never in water and never in the bathtub.',
+  'Perlen vom Tauchspiel': 'Pearls from the dive game', 'Sterne vom Einschlafen': 'Stars from bedtime', 'Jeden Tag mit mindestens einem Tauchgang gibt es eine Perle.': 'Every day with at least one dive earns a pearl.',
+  'Jeden Abend mit einer ganzen Einschlafübung gibt es einen Stern.': 'Every evening with a full bedtime exercise earns a star.', 'Belohnungen festlegen (für Eltern)': 'Set rewards (for parents)',
+  'Perlen': 'Pearls', 'Sterne': 'Stars', 'Perle gesammelt.': 'pearl collected.', 'Perlen gesammelt.': 'pearls collected.', 'Stern gesammelt.': 'star collected.', 'Sterne gesammelt.': 'stars collected.',
+  'Alle Schätze geborgen!': 'All treasures found!', 'Übergeben?': 'Handed over?', 'Übergeben ✓': 'Handed over ✓', 'Sticker': 'Stickers',
+  'Ein Tauchring-Set für den Pool': 'A set of dive rings for the pool', 'Eine Taucherbrille': 'A diving mask', 'Ein Ausflug ins Aquarium oder Erlebnisbad': 'A trip to the aquarium or a water park', 'Flossen': 'Fins',
+  'Ein Gute-Nacht-Buch zum Vorlesen': 'A bedtime story book', 'Leuchtsterne für die Zimmerdecke': 'Glow-in-the-dark stars for the ceiling', 'Ein Sternenhimmel-Projektor als Nachtlicht': 'A starry sky projector as a night light',
+  'Familien-Challenge': 'Family challenge', 'Gemeinsames Ziel diese Woche:': 'Shared goal this week:', 'Perlen und Sterne': 'pearls and stars', ', geschafft!': ', done!', 'Ziel anpassen': 'Adjust goal',
+  'Ziel 5 weniger': 'Goal 5 less', 'Ziel 5 mehr': 'Goal 5 more', 'Sobald jemand übt, erscheint er hier.': 'As soon as someone practices, they show up here.',
+  'Pro Tag gibt es eine Perle fürs Tauchen oder Training und einen Stern fürs Einschlafen.': 'Each day there is one pearl for diving or training and one star for bedtime.', 'Gezählt wird auf diesem Gerät.': 'Counted on this device.',
+  'Erster Tauchgang': 'First dive', 'Zum ersten Mal mit dem Wal abgetaucht.': 'Dived with the whale for the first time.', 'Zehn Sekunden': 'Ten seconds', '10 Sekunden unter Wasser.': '10 seconds under water.',
+  'Zwanzig Sekunden': 'Twenty seconds', '20 Sekunden unter Wasser.': '20 seconds under water.', 'Dreißig Sekunden': 'Thirty seconds', '30 Sekunden unter Wasser.': '30 seconds under water.',
+  'Ganz unten': 'All the way down', 'Bis auf den Meeresgrund getaucht.': 'Dived to the bottom of the sea.', 'Drei Tauchtage': 'Three dive days', 'An drei Tagen getaucht.': 'Dived on three days.',
+  'Erster Stern': 'First star', 'Eine ganze Einschlafübung gemacht.': 'Did a full bedtime exercise.', 'Fünf Sterne': 'Five stars', 'Fünf Abende mit Einschlafübung.': 'Five evenings with a bedtime exercise.',
+  'Zehn Sterne': 'Ten stars', 'Zehn Abende mit Einschlafübung.': 'Ten evenings with a bedtime exercise.', 'Sternenhimmel': 'Starry sky', 'Dreißig Abende.': 'Thirty evenings.', 'Ein ganzer Himmel voll.': 'A whole sky full.',
+  'Alle Übungen': 'All exercises', 'Alle vier Einschlafübungen ausprobiert.': 'Tried all four bedtime exercises.',
+  'Übung': 'Exercise', 'Dauer': 'Duration', 'Bereit für die Nacht': 'Ready for the night', "Los geht's": "Let's go", 'Beenden': 'Finish', 'Gute Nacht': 'Good night', 'Ein neuer Stern ist dazugekommen.': 'A new star has been added.',
+  'letzter Atemzug': 'last breath', 'Noch keine Sterne.': 'No stars yet.', 'Der erste kommt nach der ersten ganzen Übung.': 'The first one comes after the first full exercise.',
+  'Langes Ausatmen beruhigt, weil es den Puls senkt.': 'Long exhales calm you down because they lower the heart rate.', 'Die Pausen sind bewusst kurz: Hier geht es ums ruhige Atmen, nicht ums Luftanhalten.': 'The pauses are deliberately short: this is about calm breathing, not holding your breath.',
+  'Nach drei Atemzügen verstummt die Ansage, dann führen nur noch der Mond und leise Töne.': 'After three breaths the voice goes quiet, then only the moon and soft tones guide you.',
+  'Ballonbauch': 'Balloon belly', 'Hand auf den Bauch.': 'Hand on your belly.', 'Beim Einatmen wird der Ballon groß, beim Ausatmen ganz langsam wieder klein.': 'Breathing in, the balloon gets big; breathing out, it slowly gets small again.',
+  'Blume und Kerze': 'Flower and candle', 'An einer Blume riechen, dann so sanft pusten, dass die Kerze nur flackert und nicht ausgeht.': 'Smell a flower, then blow so gently that the candle only flickers and does not go out.',
+  'Viereck': 'Square', 'Mit dem Finger ein Viereck in die Luft malen.': 'Draw a square in the air with your finger.', 'Jede Seite ist ein Schritt.': 'Each side is one step.',
+  'Summende Biene': 'Humming bee', 'Durch die Nase einatmen, beim Ausatmen mit geschlossenem Mund leise summen.': 'Breathe in through your nose, hum softly with your mouth closed as you breathe out.',
+  'Ballon aufpusten': 'Blow up the balloon', 'Luft rauslassen': 'Let the air out', 'An der Blume riechen': 'Smell the flower', 'Kurz halten': 'Hold briefly', 'Kerze anpusten': 'Blow on the candle', 'Leise summen': 'Hum softly',
+  'Luft anhalten': 'Hold your breath', 'Luft anhalten und losgehen': 'Hold your breath and start walking', 'Eine Minute ruhig atmen.': 'Breathe calmly for one minute.',
+  'Zwei Minuten ruhig atmen.': 'Breathe calmly for two minutes.', 'Lang ausatmen.': 'Long exhales.', 'Pause.': 'Rest.', 'Ruhig atmen.': 'Breathe calmly.', 'Los!': 'Go!', 'Noch zehn Sekunden': 'Ten seconds left',
+  'Geschafft.': 'Done.', 'Ruhig weiteratmen.': 'Keep breathing calmly.', 'Gut.': 'Good.', 'Erholungsatmung.': 'Recovery breaths.', 'Wie viele Schritte?': 'How many steps?',
+  'Abtauchen!': 'Dive!', 'Ganz unten!': 'All the way down!', 'Super.': 'Great.', 'Jetzt auftauchen und ausruhen.': 'Now surface and rest.', 'Neuer Rekord!': 'New record!', 'Super gemacht!': 'Well done!', 'Ton funktioniert': 'Sound works',
+  'Bist du ein Kind oder erwachsen?': 'Are you a child or an adult?', 'Wie heißt du?': "What's your name?", 'Zurück': 'Back', 'Neu': 'New'
+};
+const RX = [
+  [/^Runde (\d+) von (\d+)$/, 'Round $1 of $2'], [/^(\d+) Runden, ca\. (\d+) Min\.$/, '$1 rounds, approx. $2 min.'], [/^Erste Pause (\S+)$/, 'First rest $1'],
+  [/^Danach halten (\S+)$/, 'Then hold $1'], [/^Danach atmen (\S+)$/, 'Then breathe $1'], [/^Danach erholen (\S+)$/, 'Then recover $1'], [/^Danach (.+)$/, 'Then $1'],
+  [/^Bisherige Bestzeit (\S+)$/, 'Previous best $1'], [/^Versuch (\d+)(:?)$/, 'Attempt $1$2'], [/^(\S+) als Bestzeit übernehmen$/, 'Save $1 as best time'],
+  [/^(CO2|O2)-Tabelle starten$/, 'Start $1 table'], [/^Kontraktion \((\d+)\)$/, 'Contraction ($1)'], [/^Kontraktion$/, 'Contraction'],
+  [/^Erst (.+), dann sofort hinsetzen und kurz die Luft anhalten, dann erholen\.$/, 'First $1, then sit down right away and hold your breath briefly, then recover.'],
+  [/^(\d+) Runden, (\S+) Erholung$/, '$1 rounds, $2 recovery'], [/^(\d+) Runden$/, '$1 rounds'], [/^Haltezeit \((\d+) %\)$/, 'Hold time ($1 %)'], [/^ca\. (\d+) Min\.$/, 'approx. $1 min'],
+  [/^Zurück auf (\d+) % der Bestzeit$/, 'Back to $1 % of best time'], [/^Zwei volle CO2-Sessions mit (\S+)\.$/, 'Two full CO2 sessions at $1.'], [/^Bereit für (\S+)\.$/, 'Ready for $1.'], [/^Auf (\S+) erhöhen$/, 'Increase to $1'],
+  [/^(Statik|Mit Flossen|Ohne Flossen|Tiefe) Rekord$/, (m, a) => tr(a) + ' record'], [/^(\d\d\.\d\d\.): (Statik|Mit Flossen|Ohne Flossen|Tiefe) (.+)$/, (m, d, a, v) => d + ': ' + tr(a) + ' ' + v],
+  [/^(\d\d\.\d\d\.): (\d+) Schritte, (\S+)$/, '$1: $2 steps, $3'], [/^noch (\d+) Schritte$/, '$1 steps to go'], [/^noch (\d+) m$/, '$1 m to go'], [/^noch (\S+)$/, '$1 to go'],
+  [/^(\d+) von (\d+) Wochen$/, '$1 of $2 weeks'], [/^(\d+) von (\d+)$/, '$1 of $2'], [/^Geschafft am (.+)$/, 'Achieved on $1'], [/^Achievements (\d+) von (\d+)$/, 'Achievements $1 of $2'], [/^Sticker (\d+) von (\d+)$/, 'Stickers $1 of $2'],
+  [/^Über (.+)\.$/, 'Above $1.'], [/^Noch unter (.+)\.$/, 'Still below $1.'], [/^Noch (\S+) bis (.+)\.$/, (m, a, b) => /^\d+$/.test(a) ? m : a + ' to go until ' + b + '.'],
+  [/^Noch (\d+) (Perle|Perlen|Stern|Sterne) bis: (.+)\.$/, (m, n, u, x) => n + ' more ' + ({Perle: 'pearl', Perlen: 'pearls', Stern: 'star', Sterne: 'stars'})[u] + ' until: ' + tr(x) + '.'],
+  [/^Perlen: (\d+)\.$/, 'Pearls: $1.'], [/^Noch (\d+) (Eintrag|Einträge): jede Session und jede neue Bestzeit zählt\.$/, (m, n) => n + (n === '1' ? ' more entry' : ' more entries') + ': every session and every new best time counts.'],
+  [/^Ruhepuls: Bei unter (\d+) hast du (\d+) % der Runden voll gehalten, bei (\d+) und mehr (\d+) %\.$/, 'Resting pulse: below $1 you held $2 % of rounds fully, at $3 and above $4 %.'],
+  [/^Ruhepuls: (\d+) von 4 Sessions mit Puls eingetragen, dann zeige ich dir hier den Zusammenhang mit deinen Runden\.$/, 'Resting pulse: $1 of 4 sessions logged with pulse; then I will show you the connection with your rounds here.'],
+  [/^Morgen: (.+)\.$/, (m, a) => 'Tomorrow: ' + tr(a) + '.'], [/^Letzter Test vor (\d+) Tagen\.$/, 'Last test $1 days ago.'], [/^Haltezeit (\S+)\.$/, 'Hold time $1.'], [/^Haltezeit steigt bis (\S+)\.$/, 'Hold time rises to $1.'],
+  [/^Haltezeit (\S+)$/, 'Hold time $1'], [/^Je (\d+) Sekunden$/, '$1 seconds each'], [/^(\d+) Sek\. ein, (\d+) halten, (\d+) aus$/, '$1 s in, $2 hold, $3 out'], [/^(\d+) Sek\. ein, (\d+) aus$/, '$1 s in, $2 out'],
+  [/^(\d+) Min\.$/, '$1 min'], [/^(\d+) Minuten (.+)$/, (m, n, x) => n + ' minutes ' + tr(x)], [/^(\d+) (Abend|Abende)(, heute schon geschafft)?$/, (m, n, a, t) => n + (n === '1' ? ' evening' : ' evenings') + (t ? ', done today' : '')],
+  [/^Rekord (\d+) s$/, 'Record $1 s'], [/^(\d+) Sekunde$/, '$1 second'], [/^(\d+) Sekunden(!?)$/, '$1 seconds$2'], [/^(\d+) Sekunden\.$/, '$1 seconds.'], [/^Ausruhen, noch (\S+)$/, 'Rest, $1 to go'],
+  [/^(\d+) (Perle|Perlen), (\d+) (Stern|Sterne)$/, (m, a, b, c, d) => a + (a === '1' ? ' pearl, ' : ' pearls, ') + c + (c === '1' ? ' star' : ' stars')],
+  [/^Bestzeit (\S+)$/, 'Best $1'], [/^(\d+) (Perle|Perlen)$/, (m, a) => a + (a === '1' ? ' pearl' : ' pearls')], [/^(\d+) (Sterne)$/, '$1 stars'], [/^(\d+) (Session|Sessions)$/, '$1 $2'],
+  [/^(\d+) (Kontraktion|Kontraktionen)$/, (m, a) => a + (a === '1' ? ' contraction' : ' contractions')], [/^Bei (\d+) (Perlen|Sterne)$/, (m, a, u) => 'At ' + a + (u === 'Perlen' ? ' pearls' : ' stars')],
+  [/^(\d+) (Perlen|Sterne)$/, (m, a, u) => a + (u === 'Perlen' ? ' pearls' : ' stars')], [/^Person (\d+)$/, 'Person $1'],
+  [/^(Freigeschaltet|Neuer Sticker|Belohnung erreicht): (.+?)(?: \(und (\d+) weitere\))?$/, (m, k, x, n) => ({Freigeschaltet: 'Unlocked', 'Neuer Sticker': 'New sticker', 'Belohnung erreicht': 'Reward reached'})[k] + ': ' + tr(x) + (n ? ' (and ' + n + ' more)' : '')],
+  [/^\+1 (Perle|Stern), jetzt (\d+)(?: \(und (\d+) weitere\))?$/, (m, u, n, k) => '+1 ' + (u === 'Perle' ? 'pearl' : 'star') + ', now ' + n + (k ? ' (and ' + k + ' more)' : '')],
+  [/^Familienziel geschafft: (\d+) diese Woche(?: \(und (\d+) weitere\))?$/, (m, n, k) => 'Family goal reached: ' + n + ' this week' + (k ? ' (and ' + k + ' more)' : '')],
+  [/^(\d+) Sekunden\. (.+)$/, (m, n, r) => n + ' seconds. ' + tr(r)]
+];
+function tr(s) {
+  if (S.lang !== 'en' || !s) return s;
+  if (EN[s] != null) return EN[s];
+  const parts = s.split(/(?<=[.!?])\s+(?=[A-ZÄÖÜ+])/);
+  if (parts.length > 1) return parts.map(tr).join(' ');
+  for (const [re, rep] of RX) { const m = s.match(re); if (m) return typeof rep === 'function' ? rep(...m) : s.replace(re, rep); }
+  if (s.includes(', ')) { const c = s.split(', '); const t = c.map(tr); if (t.some((x, i) => x !== c[i])) return t.join(', '); }
+  return s;
+}
+const L = tr;
+const TRS = new WeakMap(), ATTRS = ['placeholder', 'aria-label', 'title'];
+function trText(n) {
+  const v = n.nodeValue; if (!v || !/[A-Za-zÄÖÜäöüß]/.test(v)) return;
+  let r = TRS.get(n); if (!r || v !== r.out) r = {de: v};
+  const m = r.de.match(/^(\s*)([\s\S]*?)(\s*)$/), want = S.lang === 'en' ? m[1] + tr(m[2]) + m[3] : r.de;
+  r.out = want; TRS.set(n, r); if (v !== want) n.nodeValue = want;
+}
+function trEl(el) {
+  ATTRS.forEach(a => {
+    if (!el.hasAttribute || !el.hasAttribute(a)) return;
+    const k = 'de' + a.replace(/\W/g, ''), v = el.getAttribute(a);
+    if (el.dataset[k] == null || v !== el.dataset[k + 'o']) el.dataset[k] = v;
+    const w = tr(el.dataset[k]); el.dataset[k + 'o'] = w; if (v !== w) el.setAttribute(a, w);
+  });
+}
+function trWalk(root) {
+  if (!root) return;
+  if (root.nodeType === 3) { trText(root); return; }
+  if (root.nodeType !== 1 || /^(SCRIPT|STYLE|TEXTAREA)$/.test(root.tagName)) return;
+  trEl(root);
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {acceptNode: n => n.nodeType === 1 && /^(SCRIPT|STYLE|TEXTAREA)$/.test(n.tagName) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
+  let n; while ((n = w.nextNode())) { if (n.nodeType === 3) trText(n); else trEl(n); }
+}
+const trObs = new MutationObserver(ms => { for (const m of ms) { if (m.type === 'characterData') trText(m.target); else m.addedNodes.forEach(trWalk); } });
+trObs.observe(document.body, {subtree: true, childList: true, characterData: true});
+
 let cfg = S.cur != null ? P().cfg : blankCfg();
-let showPicker = S.cur == null, renaming = false, clearArm = false, loadArm = false, newIds = new Set();
+let ob = null, showPicker = true, renaming = false, clearArm = false, loadArm = false, newIds = new Set();
 
 /* ---------- Audio ---------- */
 let ac = null, silent = null, wl = null;
@@ -563,8 +790,8 @@ const unlock = () => {
 const quiet = () => { try { silent && silent.pause(); } catch (e) {} };
 const tone = (f, d, vol) => { if (!S.set.sound || !ac) return; try { const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = f; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + Math.min(.15, d / 4)); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + d + .05); } catch (e) {} };
 const beep = (f, d) => tone(f, d, .45);
-const deVoice = () => { try { return speechSynthesis.getVoices().find(v => /^de/i.test(v.lang)); } catch (e) { return null; } };
-const say = (t, rate) => { if (!S.set.voice || !t) return; try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'de-DE'; const v = deVoice(); if (v) u.voice = v; u.rate = rate || .95; speechSynthesis.speak(u); } catch (e) {} };
+const deVoice = () => { try { const re = S.lang === 'en' ? /^en/i : /^de/i; return speechSynthesis.getVoices().find(v => re.test(v.lang)); } catch (e) { return null; } };
+const say = (t, rate) => { if (!S.set.voice || !t) return; try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(tr(t)); u.lang = S.lang === 'en' ? 'en-US' : 'de-DE'; const v = deVoice(); if (v) u.voice = v; u.rate = rate || .95; speechSynthesis.speak(u); } catch (e) {} };
 const vib = p => { if (!S.set.vib) return; try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
 const wake = async on => { try { if (on && 'wakeLock' in navigator) wl = await navigator.wakeLock.request('screen'); else if (!on && wl) { await wl.release(); wl = null; } } catch (e) {} };
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (run || nrun || krun)) wake(true); });
@@ -719,7 +946,7 @@ function updBlind(shown) {
 function ctrlHTML() {
   const p = P();
   if (!run) return `<button class="btn pri big" data-a="start">${p.mode === 'surf' ? 'Surf-Session' : TYPEL[p.mode] + '-Tabelle'} starten</button><button class="btn" data-a="test">Bestzeit messen</button><button class="btn" data-a="walk">Apnoe-Gehen</button>`;
-  const ph = cur(), pz = `<button class="btn" data-a="pause">${run.paused ? 'Weiter' : 'Pause'}</button>`;
+  const ph = cur(), pz = `<button class="btn" data-a="pause">${run.paused ? 'Weiter' : 'Pausieren'}</button>`;
   const bl = S.set.blind && hideBlind && !run.wait ? `<button class="btn" data-a="blindShow">Augen-zu-Ansicht</button>` : '';
   if (run.mode === 'test') {
     if (run.wait) return `<p class="result">Versuch ${run.tries.length}: <b>${fmt(run.last)}</b>, beste Zeit heute <b>${fmt(run.best)}</b></p><button class="btn pri big" data-a="take">${fmt(run.best)} als Bestzeit übernehmen</button><button class="btn" data-a="again">Zweiter Versuch nach 4 Min.</button><button class="btn" data-a="stop">Verwerfen</button>`;
@@ -736,7 +963,7 @@ function ctrlHTML() {
     const n = run.res[ph.r].n;
     return `<button class="btn hot big" data-a="air">Luft geholt</button><button class="btn" data-a="contr">Kontraktion${n ? ' (' + n + ')' : ''}</button>${pz}${bl}<button class="btn" data-a="stop">Stopp</button>`;
   }
-  return `<button class="btn pri big" data-a="pause">${run.paused ? 'Weiter' : 'Pause'}</button><button class="btn" data-a="skip">Pause überspringen</button>${bl}<button class="btn" data-a="stop">Stopp</button>`;
+  return `<button class="btn pri big" data-a="pause">${run.paused ? 'Weiter' : 'Pausieren'}</button><button class="btn" data-a="skip">Pause überspringen</button>${bl}<button class="btn" data-a="stop">Stopp</button>`;
 }
 function renderTrain() {
   const p = P(), ph = cur(), pl = run && run.pl ? run.pl : last && last.pl ? last.pl : planOf(p.mode);
@@ -1087,7 +1314,7 @@ function renderSchatz() {
   $('pearlBig').textContent = np; $('pearlTxt').textContent = (np === 1 ? 'Perle gesammelt. ' : 'Perlen gesammelt. ') + nextTxt(p, 'p');
   $('starBig').textContent = ns; $('starTxt').textContent = (ns === 1 ? 'Stern gesammelt. ' : 'Sterne gesammelt. ') + nextTxt(p, 'n');
   [['pathP', 'p', np, p.rewards], ['pathN', 'n', ns, p.rewardsN]].forEach(([id, set, n, R]) => { const el = $(id); el.style.gridTemplateColumns = `repeat(${R.length},minmax(0,1fr))`; el.innerHTML = pathHTML(set, n, R); });
-  const ed = (set, R) => R.map((r, i) => `<label>Bei ${r.at} ${SETS[set].unit[1]}<input type="text" data-rew="${set}:${i}" value="${esc(r.t)}" maxlength="60" style="text-align:left;font-size:16px"></label>`).join('');
+  const ed = (set, R) => R.map((r, i) => `<label>Bei ${r.at} ${SETS[set].unit[1]}<input type="text" data-rew="${set}:${i}" value="${esc(tr(r.t))}" maxlength="60" style="text-align:left;font-size:16px"></label>`).join('');
   $('rewEditP').innerHTML = ed('p', p.rewards); $('rewEditN').innerHTML = ed('n', p.rewardsN);
   $('famKid').innerHTML = famHTML();
   renderSticker();
@@ -1190,12 +1417,24 @@ function renderPicker() {
     else { if (!p.example || p.hist.length) bits.push('Bestzeit ' + fmt(p.cfg.max)); if (p.hist.length) bits.push(p.hist.length + (p.hist.length === 1 ? ' Session' : ' Sessions')); }
     if (p.stars.length) bits.push(p.stars.length + ' ★');
     if (pearls(p)) bits.push(pearls(p) + (pearls(p) === 1 ? ' Perle' : ' Perlen'));
-    return `<button class="card ${i === S.cur ? 'on' : ''}" data-a="pick" data-i="${i}"><i>${p.kind ? 'Kind' : 'Erwachsen'}</i><b>${esc(p.name)}</b><span>${bits.length ? bits.join(', ') : 'Noch leer'}</span></button>`;
+    return `<button class="card ${i === S.cur ? 'on' : ''}" data-a="pick" data-i="${i}"><i>${!p.setup ? 'Neu' : p.kind ? 'Kind' : 'Erwachsen'}</i><b>${esc(p.name)}</b><span>${bits.length ? bits.join(', ') : 'Noch leer'}</span></button>`;
   }).join('');
   $('famPick').innerHTML = famHTML();
 }
 function render() {
-  const busy = !!(run || nrun || krun), pick = showPicker || S.cur == null;
+  document.documentElement.lang = S.lang === 'en' ? 'en' : 'de';
+  $('langBtn').textContent = S.lang === 'en' ? 'Deutsch' : 'English'; $('langBtn').hidden = !S.lang;
+  const busy = !!(run || nrun || krun);
+  $('langPick').hidden = !!S.lang; $('onboard').hidden = !S.lang || !ob;
+  if (!S.lang || ob) {
+    $('picker').hidden = true; $('main').hidden = true; $('blind').hidden = true; $('renBtn').hidden = true; $('renForm').hidden = true; $('whoBtn').hidden = !ob;
+    $('whoBtn').textContent = 'Person wählen'; $('title').textContent = 'Atemtraining';
+    document.body.className = ob && ob.kind ? 'kid' : 'adult';
+    if (ob) { $('obKind').hidden = ob.step !== 1; $('obNameF').hidden = ob.step !== 2; }
+    return;
+  }
+  $('whoBtn').hidden = false;
+  const pick = showPicker || S.cur == null;
   const p = pick ? null : P();
   if (p) fixTab(p);
   document.body.className = (p && p.kind ? 'kid' : 'adult') + (p && p.tab === 'night' ? ' night' : '');
@@ -1256,8 +1495,12 @@ const acts = {
   kstart: kStart, kup: () => { if (krun && krun.ph === 'dive') kSurface(false); },
   kcancel: () => { krun = null; clearInterval(ktm); wake(false); quiet(); renderDive(); },
   tab: b => { P().tab = b.dataset.t; save(); render(); },
-  people: () => { showPicker = !showPicker || S.cur == null; renaming = false; render(); },
-  pick: b => selectPerson(+b.dataset.i),
+  people: () => { if (ob) { ob = null; showPicker = true; render(); return; } showPicker = !showPicker || S.cur == null; renaming = false; render(); },
+  pick: b => { const i = +b.dataset.i, p = S.people[i]; if (!p.setup) { ob = {i, step: 1, kind: null}; render(); } else selectPerson(i); },
+  lang: b => { S.lang = b.dataset.l; save(); render(); trWalk(document.body); },
+  langToggle: () => { S.lang = S.lang === 'en' ? 'de' : 'en'; save(); render(); trWalk(document.body); },
+  obKind: b => { ob.kind = b.dataset.v === '1'; ob.step = 2; render(); const n = $('obName'); n.value = ''; setTimeout(() => n.focus(), 50); },
+  obBack: () => { if (ob && ob.step === 2) { ob.step = 1; ob.kind = null; } else { ob = null; showPicker = true; } render(); },
   rename: () => { renaming = true; clearArm = false; render(); $('renIn').value = P().name; $('renIn').focus(); },
   renCancel: () => { renaming = false; clearArm = false; render(); },
   kind: b => { P().kind = b.dataset.v === '1'; fixTab(P()); save(); render(); },
@@ -1280,6 +1523,13 @@ const acts = {
   soundtest: () => { unlock(); beep(660, .25); setTimeout(() => beep(880, .25), 300); say('Ton funktioniert'); setTimeout(() => { if (!run && !nrun && !krun) quiet(); }, 2500); }
 };
 document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (b && !b.disabled && acts[b.dataset.a]) acts[b.dataset.a](b); });
+$('obNameF').addEventListener('submit', e => {
+  e.preventDefault(); if (!ob) return;
+  const p = S.people[ob.i], v = $('obName').value.trim();
+  if (v) p.name = v.slice(0, 24);
+  p.kind = !!ob.kind; p.setup = true; p.tab = p.kind ? 'dive' : 'train';
+  const i = ob.i; ob = null; selectPerson(i);
+});
 $('renForm').addEventListener('submit', e => { e.preventDefault(); const v = $('renIn').value.trim(); if (v) { P().name = v.slice(0, 24); save(); } renaming = false; clearArm = false; render(); });
 $('max').addEventListener('change', e => setMax(parse(e.target.value)));
 $('max').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
@@ -1312,9 +1562,10 @@ try { speechSynthesis.getVoices(); } catch (e) {}
 try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
 S.people.forEach(p => { check(p); markSeen(p); });
 if (S.teamSeen === '' && teamWeek() >= S.teamGoal) S.teamSeen = String(wk0());
-document.addEventListener('change', e => { const v = e.target.dataset && e.target.dataset.rew; if (v == null || S.cur == null) return; const [set, i] = v.split(':'), key = SETS[set].key, r = P()[key][+i]; r.t = e.target.value.trim() || (set === 'p' ? defRewards() : defRewardsN())[+i].t; save(); renderSchatz(); });
+document.addEventListener('change', e => { const v = e.target.dataset && e.target.dataset.rew; if (v == null || S.cur == null) return; const [set, i] = v.split(':'), key = SETS[set].key, r = P()[key][+i]; const dv = (set === 'p' ? defRewards() : defRewardsN())[+i].t, nv = e.target.value.trim(); r.t = !nv || nv === tr(dv) ? dv : nv; save(); renderSchatz(); });
 save();
 render();
+trWalk(document.body);
 }
 </script>
 </body>
